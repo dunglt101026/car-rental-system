@@ -1,0 +1,96 @@
+# ===================================================================
+# 1. Java & Maven Build Outputs
+# ===================================================================
+target/
+build/
+bin/
+out/
+*.class
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Maven Wrapper JAR (không cần commit jar)
+.mvn/wrapper/maven-wrapper.jar
+
+# ===================================================================
+# 2. IDE & Editor Artifacts
+# ===================================================================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse
+.settings/
+.classpath
+.project
+.metadata/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# NetBeans
+nbproject/
+nbbuild/
+dist/
+nbdist/
+
+# ===================================================================
+# 3. Environment & Local Sensitive Files (DO NOT COMMIT)
+# ===================================================================
+# Spring Boot Local Configurations
+**/application-local.properties
+**/application-local.yml
+**/application-secret.properties
+**/application-secret.yml
+*.local.properties
+
+# Environment variables
+.env
+.env.local
+
+# ===================================================================
+# 4. Logs, Storage & Runtime Data
+# ===================================================================
+logs/
+*.log
+uploads/
+upload-temp/
+tmp/
+*.tmp
+*.bak
+*.swp
+.reloadtrigger
+
+# ===================================================================
+# 5. Database Local Files (MS SQL Server / SQLite)
+# ===================================================================
+*.bak
+*.mdf
+*.ldf
+*.sql.backup
+
+# ===================================================================
+# 6. Operating System Files
+# ===================================================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
