@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống cho thuê xe - Car Rental System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- Header / Navbar Fragment -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container my-5">
+    <!-- Hero Banner -->
+    <div class="hero-section text-center mb-5 shadow">
+        <h1 class="display-5 fw-bold mb-3">🚗 Car Rental System</h1>
+        <p class="lead mb-4">Hệ thống quản lý và cho thuê xe hiện đại, an toàn và thuận tiện.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a th:href="@{/demo}" class="btn btn-light btn-rounded text-primary fw-bold">Xem trang Demo</a>
+            <div sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn btn-outline-light btn-rounded">Đăng nhập tài khoản</a>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/admin/dashboard}" class="btn btn-warning btn-rounded fw-bold">Trang Quản Trị Admin</a>
+            </div>
+            <div sec:authorize="hasRole('CUSTOMER')">
+                <a th:href="@{/customer/dashboard}" class="btn btn-info btn-rounded fw-bold text-dark">Trang Khách Hàng</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông tin kiểm thử phân quyền -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card card-modern p-4 h-100 border-start border-primary border-4">
+                <h4 class="fw-bold mb-3">🛡️ Kiểm thử phân quyền (Role Testing)</h4>
+                <p class="text-muted">Dự án đã cấu hình sẵn 2 tài khoản mẫu (In-Memory) để bạn kiểm tra phân quyền ngay lập tức:</p>
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><strong>Admin:</strong> admin / admin123</span>
+                        <span class="badge bg-warning text-dark">ROLE_ADMIN</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><strong>Khách hàng:</strong> customer / customer123</span>
+                        <span class="badge bg-info text-dark">ROLE_CUSTOMER</span>
+                    </li>
+                </ul>
+                <div class="alert alert-secondary small mb-0">
+                    💡 <em>Ghi chú: Khi cần chuyển sang đọc tài khoản từ Database SQL Server, chỉ cần cập nhật trong <code>SecurityConfig.java</code>.</em>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card card-modern p-4 h-100 border-start border-success border-4">
+                <h4 class="fw-bold mb-3">🚀 Truy cập nhanh theo quyền</h4>
+                <p class="text-muted">Bấm thử các đường dẫn dưới đây để kiểm tra phân quyền truy cập:</p>
+                <div class="d-grid gap-2">
+                    <a th:href="@{/admin/dashboard}" class="btn btn-outline-warning text-dark text-start">
+                        <strong>/admin/dashboard</strong> - Chỉ tài khoản ADMIN mới vào được (người khác bị 403)
+                    </a>
+                    <a th:href="@{/customer/dashboard}" class="btn btn-outline-info text-dark text-start">
+                        <strong>/customer/dashboard</strong> - Dành cho CUSTOMER và ADMIN
+                    </a>
+                    <a th:href="@{/demo}" class="btn btn-outline-secondary text-start">
+                        <strong>/demo</strong> - Trang công khai (tất cả mọi người đều vào được)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer Fragment -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

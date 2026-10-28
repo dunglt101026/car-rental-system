@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head></head>
+<body>
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand text-primary fw-bold" th:href="@{/}">
+            🚗 CarRental<span class="text-light">System</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/demo}">Demo Page</a>
+                </li>
+
+                <!-- Menu chỉ hiển thị khi có quyền ADMIN -->
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link text-warning fw-semibold" th:href="@{/admin/dashboard}">
+                        🛡️ Quản trị (Admin)
+                    </a>
+                </li>
+
+                <!-- Menu chỉ hiển thị khi có quyền CUSTOMER -->
+                <li class="nav-item" sec:authorize="hasRole('CUSTOMER')">
+                    <a class="nav-link text-info fw-semibold" th:href="@{/customer/dashboard}">
+                        👤 Trang cá nhân (Customer)
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-2">
+                <!-- Khi CHƯA đăng nhập -->
+                <div sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="btn btn-outline-light btn-sm btn-rounded px-3">
+                        Đăng nhập
+                    </a>
+                </div>
+
+                <!-- Khi ĐÃ đăng nhập -->
+                <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-3">
+                    <span class="text-light small">
+                        Xin chào, <strong sec:authentication="name" class="text-primary">User</strong>
+                        <span sec:authorize="hasRole('ADMIN')" class="badge bg-warning text-dark badge-role ms-1">ADMIN</span>
+                        <span sec:authorize="hasRole('CUSTOMER')" class="badge bg-info text-dark badge-role ms-1">CUSTOMER</span>
+                    </span>
+
+                    <!-- Form Logout thuần Server-side (không AJAX, bảo vệ bởi CSRF) -->
+                    <form th:action="@{/logout}" method="post" class="d-inline m-0">
+                        <button type="submit" class="btn btn-outline-danger btn-sm btn-rounded">
+                            Đăng xuất
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+</body>
+</html>
+
