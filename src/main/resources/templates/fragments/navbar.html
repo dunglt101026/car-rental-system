@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head></head>
 <body>
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
     <div class="container">
-        <a class="navbar-brand text-primary fw-bold" th:href="@{/}">
-            🚗 CarRental<span class="text-light">System</span>
+        <a class="navbar-brand fw-bold text-primary" th:href="@{/}">
+            Car Rental <span class="text-white">System</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
                 aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,45 +18,42 @@
                     <a class="nav-link" th:href="@{/}">Trang chủ</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/demo}">Demo Page</a>
+                    <a class="nav-link" th:href="@{/cars}">Danh mục xe</a>
                 </li>
 
-                <!-- Menu chỉ hiển thị khi có quyền ADMIN -->
-                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link text-warning fw-semibold" th:href="@{/admin/dashboard}">
-                        🛡️ Quản trị (Admin)
-                    </a>
+                <!-- Menu cho Customer -->
+                <li class="nav-item" th:if="${(currentUser != null and currentUser.role == 'Customer') or (session.CURRENT_USER != null and session.CURRENT_USER.role == 'Customer')}">
+                    <a class="nav-link text-info" th:href="@{/customer/rentals}">Đơn thuê của tôi</a>
+                </li>
+                <li class="nav-item" th:if="${(currentUser != null and currentUser.role == 'Customer') or (session.CURRENT_USER != null and session.CURRENT_USER.role == 'Customer')}">
+                    <a class="nav-link text-info" th:href="@{/customer/profile}">Hồ sơ cá nhân</a>
                 </li>
 
-                <!-- Menu chỉ hiển thị khi có quyền CUSTOMER -->
-                <li class="nav-item" sec:authorize="hasRole('CUSTOMER')">
-                    <a class="nav-link text-info fw-semibold" th:href="@{/customer/dashboard}">
-                        👤 Trang cá nhân (Customer)
-                    </a>
+                <!-- Menu cho Admin -->
+                <li class="nav-item" th:if="${(currentUser != null and currentUser.role == 'Admin') or (session.CURRENT_USER != null and session.CURRENT_USER.role == 'Admin')}">
+                    <a class="nav-link text-warning" th:href="@{/admin/cars}">Trang quản trị</a>
                 </li>
             </ul>
 
             <div class="d-flex align-items-center gap-2">
-                <!-- Khi CHƯA đăng nhập -->
-                <div sec:authorize="isAnonymous()">
-                    <a th:href="@{/login}" class="btn btn-outline-light btn-sm btn-rounded px-3">
-                        Đăng nhập
-                    </a>
+                <!-- Khi chưa đăng nhập -->
+                <div th:if="${currentUser == null and session.CURRENT_USER == null}" class="d-flex gap-2">
+                    <a th:href="@{/login}" class="btn btn-outline-light btn-sm px-3">Đăng nhập</a>
+                    <a th:href="@{/register}" class="btn btn-primary btn-sm px-3">Đăng ký</a>
                 </div>
 
-                <!-- Khi ĐÃ đăng nhập -->
-                <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-3">
+                <!-- Khi đã đăng nhập -->
+                <div th:if="${currentUser != null or session.CURRENT_USER != null}" class="d-flex align-items-center gap-3">
                     <span class="text-light small">
-                        Xin chào, <strong sec:authentication="name" class="text-primary">User</strong>
-                        <span sec:authorize="hasRole('ADMIN')" class="badge bg-warning text-dark badge-role ms-1">ADMIN</span>
-                        <span sec:authorize="hasRole('CUSTOMER')" class="badge bg-info text-dark badge-role ms-1">CUSTOMER</span>
+                        Xin chào, <strong class="text-white" th:text="${currentUser != null ? currentUser.accountName : session.CURRENT_USER.accountName}">User</strong>
+                        <span th:if="${(currentUser != null and currentUser.role == 'Admin') or (session.CURRENT_USER != null and session.CURRENT_USER.role == 'Admin')}"
+                              class="badge bg-warning text-dark ms-1">Admin</span>
+                        <span th:if="${(currentUser != null and currentUser.role == 'Customer') or (session.CURRENT_USER != null and session.CURRENT_USER.role == 'Customer')}"
+                              class="badge bg-info text-dark ms-1">Customer</span>
                     </span>
 
-                    <!-- Form Logout thuần Server-side (không AJAX, bảo vệ bởi CSRF) -->
                     <form th:action="@{/logout}" method="post" class="d-inline m-0">
-                        <button type="submit" class="btn btn-outline-danger btn-sm btn-rounded">
-                            Đăng xuất
-                        </button>
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Đăng xuất</button>
                     </form>
                 </div>
             </div>
@@ -66,4 +62,3 @@
 </nav>
 </body>
 </html>
-

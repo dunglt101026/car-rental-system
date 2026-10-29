@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<div th:fragment="admin-sidebar" class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark shadow" style="width: 260px; min-height: 100vh;">
+    <a th:href="@{/admin/cars}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <span class="fs-4 fw-bold text-warning">Admin Portal</span>
+    </a>
+    <hr class="border-secondary">
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item mb-1">
+            <a th:href="@{/admin/cars}" class="nav-link text-white"
+               th:classappend="${activeTab == 'cars' ? 'active bg-primary' : ''}">
+                Quản lý xe
+            </a>
+        </li>
+        <li class="nav-item mb-1">
+            <a th:href="@{/admin/customers}" class="nav-link text-white"
+               th:classappend="${activeTab == 'customers' ? 'active bg-primary' : ''}">
+                Quản lý khách hàng
+            </a>
+        </li>
+        <li class="nav-item mb-1">
+            <a th:href="@{/admin/rentals}" class="nav-link text-white"
+               th:classappend="${activeTab == 'rentals' ? 'active bg-primary' : ''}">
+                Quản lý giao dịch thuê
+            </a>
+        </li>
+        <li class="nav-item mb-1">
+            <a th:href="@{/admin/reports}" class="nav-link text-white"
+               th:classappend="${activeTab == 'reports' ? 'active bg-primary' : ''}">
+                Báo cáo và thống kê
+            </a>
+        </li>
+    </ul>
+    <hr class="border-secondary">
+    <div>
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="small">
+                <div class="text-white fw-bold" th:text="${(currentUser != null) ? currentUser.accountName : ((session.CURRENT_USER != null) ? session.CURRENT_USER.accountName : 'Admin')}">Admin</div>
+                <div class="text-secondary" style="font-size: 0.8rem;">Quản trị viên</div>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/}" class="btn btn-outline-light btn-sm">Trang chủ</a>
+                <form th:action="@{/logout}" method="post" class="d-inline m-0">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Đăng xuất</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
