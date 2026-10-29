@@ -124,6 +124,7 @@ class CarServiceTest {
         );
 
         when(carProducerRepository.findById(1)).thenReturn(Optional.of(testProducer));
+        when(carMapper.toEntity(request)).thenReturn(Car.builder().carName(request.carName()).build());
         when(carRepository.save(any(Car.class))).thenAnswer(invocation -> {
             Car c = invocation.getArgument(0);
             c.setCarId(100);
@@ -176,6 +177,12 @@ class CarServiceTest {
 
         when(carRepository.findById(10)).thenReturn(Optional.of(testCar));
         when(carProducerRepository.findById(1)).thenReturn(Optional.of(testProducer));
+        doAnswer(invocation -> {
+            testCar.setCarName(request.carName());
+            testCar.setColor(request.color());
+            testCar.setRentPrice(request.rentPrice());
+            return null;
+        }).when(carMapper).updateEntityFromRequest(request, testCar);
         when(carRepository.save(any(Car.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         CarResponse mockResponse = new CarResponse(

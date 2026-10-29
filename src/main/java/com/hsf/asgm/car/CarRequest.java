@@ -61,18 +61,4 @@ public record CarRequest(
                 CarStatus.Available.name()
         );
     }
-
-    public static CarRequest fromEntity(Car car) {
-        return new CarRequest(
-                car.getCarName(),
-                car.getCarModelYear(),
-                car.getColor(),
-                car.getCapacity(),
-                car.getDescription(),
-                car.getImportDate(),
-                car.getProducer() != null ? car.getProducer().getProducerId() : null,
-                car.getRentPrice(),
-                car.getStatus()
-        );
-    }
 }

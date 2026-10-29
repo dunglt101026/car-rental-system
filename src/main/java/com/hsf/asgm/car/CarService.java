@@ -79,7 +79,7 @@ public class CarService {
 
     public CarRequest getCarFormById(Integer carId) {
         Car car = getCarEntity(carId);
-        return CarRequest.fromEntity(car);
+        return carMapper.toRequest(car);
     }
 
     public List<CarProducerResponse> getAllProducers() {
@@ -94,17 +94,8 @@ public class CarService {
         CarProducer producer = carProducerRepository.findById(request.producerId())
                 .orElseThrow(() -> new BusinessException("Không tìm thấy nhà sản xuất với mã: " + request.producerId()));
 
-        Car car = Car.builder()
-                .carName(request.carName().trim())
-                .carModelYear(request.carModelYear())
-                .color(request.color().trim())
-                .capacity(request.capacity())
-                .description(request.description().trim())
-                .importDate(request.importDate())
-                .producer(producer)
-                .rentPrice(request.rentPrice())
-                .status(request.status())
-                .build();
+        Car car = carMapper.toEntity(request);
+        car.setProducer(producer);
 
         Car savedCar = carRepository.save(car);
         log.info("Created new car with ID: {}", savedCar.getCarId());
@@ -117,15 +108,8 @@ public class CarService {
         CarProducer producer = carProducerRepository.findById(request.producerId())
                 .orElseThrow(() -> new BusinessException("Không tìm thấy nhà sản xuất với mã: " + request.producerId()));
 
-        car.setCarName(request.carName().trim());
-        car.setCarModelYear(request.carModelYear());
-        car.setColor(request.color().trim());
-        car.setCapacity(request.capacity());
-        car.setDescription(request.description().trim());
-        car.setImportDate(request.importDate());
+        carMapper.updateEntityFromRequest(request, car);
         car.setProducer(producer);
-        car.setRentPrice(request.rentPrice());
-        car.setStatus(request.status());
 
         Car updatedCar = carRepository.save(car);
         log.info("Updated car with ID: {}", updatedCar.getCarId());

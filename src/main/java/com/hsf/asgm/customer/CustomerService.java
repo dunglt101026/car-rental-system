@@ -4,6 +4,11 @@ import com.hsf.asgm.common.exception.BusinessException;
 import com.hsf.asgm.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +21,12 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
 
+    public Page<CustomerResponse> getAdminCustomers(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "customerId"));
+        Specification<Customer> spec = CustomerSpecification.filterCustomers(keyword);
+        return customerRepository.findAll(spec, pageable).map(customerMapper::toResponse);
+    }
+
     public CustomerResponse getCustomerByAccountId(Integer accountId) {
         Customer customer = getCustomerEntityByAccountId(accountId);
         return customerMapper.toResponse(customer);
@@ -27,39 +38,51 @@ public class CustomerService {
     }
 
     public CustomerResponse getCustomerById(Integer customerId) {
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin khách hàng với mã: " + customerId));
+        Customer customer = getCustomerEntity(customerId);
         return customerMapper.toResponse(customer);
+    }
+
+    public Customer getCustomerEntity(Integer customerId) {
+        return customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin khách hàng với mã: " + customerId));
+    }
+
+    public CustomerProfileRequest getCustomerFormById(Integer customerId) {
+        Customer customer = getCustomerEntity(customerId);
+        return customerMapper.toProfileRequest(customer);
     }
 
     @Transactional
     public CustomerResponse updateProfile(Integer accountId, CustomerProfileRequest request) {
         Customer customer = getCustomerEntityByAccountId(accountId);
+        return applyCustomerUpdate(customer, request);
+    }
 
-        // Check mobile duplicate
-        customerRepository.findByMobile(request.mobile()).ifPresent(existing -> {
+    @Transactional
+    public CustomerResponse updateCustomer(Integer customerId, CustomerProfileRequest request) {
+        Customer customer = getCustomerEntity(customerId);
+        return applyCustomerUpdate(customer, request);
+    }
+
+    private CustomerResponse applyCustomerUpdate(Customer customer, CustomerProfileRequest request) {
+        // Check mobile duplicate with other customers
+        customerRepository.findByMobile(request.mobile().trim()).ifPresent(existing -> {
             if (!existing.getCustomerId().equals(customer.getCustomerId())) {
-                throw new BusinessException("Số điện thoại '" + request.mobile() + "' đã được sử dụng bởi khách hàng khác.");
+                throw new BusinessException("Số điện thoại '" + request.mobile().trim() + "' đã được sử dụng bởi khách hàng khác.");
             }
         });
 
-        // Check identity card duplicate
-        customerRepository.findByIdentityCard(request.identityCard()).ifPresent(existing -> {
+        // Check identity card duplicate with other customers
+        customerRepository.findByIdentityCard(request.identityCard().trim()).ifPresent(existing -> {
             if (!existing.getCustomerId().equals(customer.getCustomerId())) {
-                throw new BusinessException("Số CCCD/CMND '" + request.identityCard() + "' đã được sử dụng bởi khách hàng khác.");
+                throw new BusinessException("Số CCCD/CMND '" + request.identityCard().trim() + "' đã được sử dụng bởi khách hàng khác.");
             }
         });
 
-        customer.setFullName(request.fullName());
-        customer.setMobile(request.mobile());
-        customer.setBirthday(request.birthday());
-        customer.setIdentityCard(request.identityCard());
-        customer.setLicenceNumber(request.licenceNumber());
-        customer.setLicenceDate(request.licenceDate());
+        customerMapper.updateEntityFromProfile(request, customer);
 
         Customer saved = customerRepository.save(customer);
-        log.info("Updated customer profile id={} accountId={}", saved.getCustomerId(), accountId);
+        log.info("Updated customer profile id={}", saved.getCustomerId());
         return customerMapper.toResponse(saved);
     }
 }
-
