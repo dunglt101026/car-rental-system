@@ -1,2 +1,5 @@
-# spring.datasource.password=your_password
+# Local configuration overrides (git-ignored)
+# spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=FUCarRentingSystemDB;encrypt=true;trustServerCertificate=true
+# spring.datasource.username=sa
+spring.datasource.password=your_password_here
 server.port=8082
