@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/public-layout}">
+<head>
+    <title th:text="${car.carName + ' - Chi Tiết Xe'}">Chi Tiết Xe</title>
+</head>
+<body>
+<div layout:fragment="content" class="container my-5">
+    <!-- Navigation Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/cars}" class="text-decoration-none">Danh mục xe</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${car.carName}">Tên xe</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Main Car Info Card -->
+        <div class="col-lg-8">
+            <div class="card card-modern p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge bg-primary px-3 py-2 fs-6" th:text="${car.producerName}">Toyota</span>
+                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 fs-6"
+                          th:text="${car.status}">Available</span>
+                </div>
+
+                <h2 class="fw-bold text-dark mb-3" th:text="${car.carName}">Toyota Camry 2.5Q</h2>
+
+                <div class="p-3 bg-light rounded-3 mb-4">
+                    <h6 class="fw-bold text-secondary mb-2">Mô tả chi tiết</h6>
+                    <p class="mb-0 text-muted" th:text="${car.description}">
+                        Sedan hạng D sang trọng, nội thất da cao cấp...
+                    </p>
+                </div>
+
+                <h5 class="fw-bold text-secondary mb-3">Thông số kỹ thuật chi tiết</h5>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="p-3 border rounded bg-white">
+                            <div class="small text-muted">Hãng sản xuất</div>
+                            <div class="fw-bold fs-6" th:text="${car.producerName}">Toyota</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 border rounded bg-white">
+                            <div class="small text-muted">Năm sản xuất</div>
+                            <div class="fw-bold fs-6" th:text="${car.carModelYear}">2023</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 border rounded bg-white">
+                            <div class="small text-muted">Số chỗ ngồi</div>
+                            <div class="fw-bold fs-6"><span th:text="${car.capacity}">5</span> chỗ ngồi</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 border rounded bg-white">
+                            <div class="small text-muted">Màu sắc</div>
+                            <div class="fw-bold fs-6" th:text="${car.color}">Đen</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 border rounded bg-white">
+                            <div class="small text-muted">Ngày nhập kho</div>
+                            <div class="fw-bold fs-6" th:text="${#temporals.format(car.importDate, 'dd/MM/yyyy')}">10/01/2023</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 border rounded bg-white">
+                            <div class="small text-muted">Mã quản lý xe</div>
+                            <div class="fw-bold fs-6">#<span th:text="${car.carId}">1</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action / Booking Summary Sidebar -->
+        <div class="col-lg-4">
+            <div class="card card-modern p-4 mb-4 border-top border-primary border-4 shadow-sm">
+                <h5 class="fw-bold text-dark mb-3">Chi phí thuê xe</h5>
+                <div class="text-center py-3 bg-light rounded-3 mb-4">
+                    <div class="text-muted small">Đơn giá niêm yết</div>
+                    <div class="display-6 fw-bold text-primary" th:text="${'$' + #numbers.formatDecimal(car.rentPrice, 1, 2)}">
+                        $80.00
+                    </div>
+                    <div class="text-muted small">/ ngày (24 giờ)</div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a th:href="@{/customer/rentals/book(carId=${car.carId})}" class="btn btn-primary btn-lg fw-bold py-3 shadow-sm">
+                        Đặt thuê xe ngay
+                    </a>
+                    <a th:href="@{/cars}" class="btn btn-outline-secondary">
+                        Quay lại danh mục xe
+                    </a>
+                </div>
+
+                <div class="alert alert-light border small mt-4 mb-0">
+                    <strong>Chính sách thuê:</strong> Khách hàng cần xuất trình giấy phép lái xe hợp lệ khi nhận xe. Hoàn hủy miễn phí trước 24 giờ.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
