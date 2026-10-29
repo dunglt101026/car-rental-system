@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title th:text="${isEdit ? 'Chỉnh sửa thông tin xe' : 'Thêm xe mới'}">Thêm xe mới</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Header Section -->
+    <div class="card card-modern p-4 mb-4 border-start border-primary border-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold text-dark mb-1" th:text="${isEdit ? 'Cập Nhật Thông Tin Xe' : 'Thêm Xe Mới Vào Đội Xe'}">
+                    Thêm Xe Mới
+                </h2>
+                <p class="text-muted mb-0" th:text="${isEdit ? 'Chỉnh sửa thông số kỹ thuật, giá thuê hoặc trạng thái hoạt động của xe.' : 'Điền đầy đủ thông tin để bổ sung phương tiện mới vào hệ thống quản lý.'}">
+                    Điền đầy đủ thông tin để bổ sung phương tiện mới vào hệ thống quản lý.
+                </p>
+            </div>
+            <div>
+                <a th:href="@{/admin/cars}" class="btn btn-outline-secondary px-3">
+                    Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card card-modern p-4 p-md-5">
+        <form th:action="${isEdit ? '/admin/cars/edit/' + carId : '/admin/cars/new'}"
+              th:object="${carForm}"
+              method="post">
+
+            <!-- Section 1: Thông tin cơ bản -->
+            <h5 class="fw-bold text-secondary mb-3 pb-2 border-bottom">Thông tin cơ bản xe</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="carName" class="form-label small fw-semibold">
+                        Tên xe / Model <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" id="carName" th:field="*{carName}"
+                           th:classappend="${#fields.hasErrors('carName')} ? 'is-invalid' : ''"
+                           placeholder="Ví dụ: Toyota Camry 2.5Q" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('carName')}" th:errors="*{carName}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="producerId" class="form-label small fw-semibold">
+                        Hãng sản xuất <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" id="producerId" th:field="*{producerId}"
+                            th:classappend="${#fields.hasErrors('producerId')} ? 'is-invalid' : ''" required>
+                        <option value="">-- Chọn nhà sản xuất xe --</option>
+                        <option th:each="p : ${producers}"
+                                th:value="${p.producerId}"
+                                th:text="${p.producerName} + ' (' + ${p.country} + ')'">
+                            Toyota (Japan)
+                        </option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('producerId')}" th:errors="*{producerId}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="carModelYear" class="form-label small fw-semibold">
+                        Năm sản xuất <span class="text-danger">*</span>
+                    </label>
+                    <input type="number" class="form-control" id="carModelYear" th:field="*{carModelYear}"
+                           th:classappend="${#fields.hasErrors('carModelYear')} ? 'is-invalid' : ''"
+                           min="1900" max="2100" placeholder="2023" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('carModelYear')}" th:errors="*{carModelYear}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="color" class="form-label small fw-semibold">
+                        Màu sắc <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" id="color" th:field="*{color}"
+                           th:classappend="${#fields.hasErrors('color')} ? 'is-invalid' : ''"
+                           placeholder="Ví dụ: Trắng ngọc trai, Đen, Xám" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('color')}" th:errors="*{color}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="capacity" class="form-label small fw-semibold">
+                        Số chỗ ngồi <span class="text-danger">*</span>
+                    </label>
+                    <input type="number" class="form-control" id="capacity" th:field="*{capacity}"
+                           th:classappend="${#fields.hasErrors('capacity')} ? 'is-invalid' : ''"
+                           min="1" max="100" placeholder="4, 5, 7..." required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('capacity')}" th:errors="*{capacity}"></div>
+                </div>
+            </div>
+
+            <!-- Section 2: Vận hành và Giá thuê -->
+            <h5 class="fw-bold text-secondary mb-3 pb-2 border-bottom">Vận hành và Giá dịch vụ</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label for="rentPrice" class="form-label small fw-semibold">
+                        Giá thuê / ngày ($) <span class="text-danger">*</span>
+                    </label>
+                    <input type="number" step="0.01" min="0.01" class="form-control" id="rentPrice" th:field="*{rentPrice}"
+                           th:classappend="${#fields.hasErrors('rentPrice')} ? 'is-invalid' : ''"
+                           placeholder="Ví dụ: 1500000" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('rentPrice')}" th:errors="*{rentPrice}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="importDate" class="form-label small fw-semibold">
+                        Ngày nhập kho <span class="text-danger">*</span>
+                    </label>
+                    <input type="date" class="form-control" id="importDate" th:field="*{importDate}"
+                           th:classappend="${#fields.hasErrors('importDate')} ? 'is-invalid' : ''" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('importDate')}" th:errors="*{importDate}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="status" class="form-label small fw-semibold">
+                        Trạng thái xe <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" id="status" th:field="*{status}"
+                            th:classappend="${#fields.hasErrors('status')} ? 'is-invalid' : ''" required>
+                        <option th:each="st : ${statuses}"
+                                th:value="${st.name()}"
+                                th:text="${st.name() == 'Available' ? 'Có sẵn (Available)' : (st.name() == 'Rented' ? 'Đang thuê (Rented)' : 'Vô hiệu hóa (Inactive)')}">
+                            Available
+                        </option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
+                </div>
+            </div>
+
+            <!-- Section 3: Mô tả chi tiết -->
+            <h5 class="fw-bold text-secondary mb-3 pb-2 border-bottom">Mô tả và Tiện ích xe</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <label for="description" class="form-label small fw-semibold">
+                        Mô tả chi tiết phương tiện <span class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control" id="description" th:field="*{description}" rows="4"
+                              th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''"
+                              placeholder="Mô tả thông số động cơ, trang thiết bị an toàn, tiện nghi nội thất và lưu ý cho khách thuê..." required></textarea>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                <a th:href="@{/admin/cars}" class="btn btn-outline-secondary px-4">
+                    Hủy bỏ
+                </a>
+                <button type="submit" class="btn btn-primary px-4 fw-semibold"
+                        th:text="${isEdit ? 'Cập nhật thay đổi' : 'Thêm mới xe'}">
+                    Lưu thông tin xe
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>
+

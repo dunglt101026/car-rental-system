@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Quản lý xe</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Header Section -->
+    <div class="card card-modern p-4 mb-4 border-start border-primary border-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">Quản Lý Danh Sách Xe</h2>
+                <p class="text-muted mb-0">Theo dõi thông tin chi tiết các dòng xe, điều chỉnh trạng thái và quản trị đội xe.</p>
+            </div>
+            <div>
+                <a th:href="@{/admin/cars/new}" class="btn btn-primary px-4 fw-semibold">
+                    + Thêm xe mới
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Card -->
+    <div class="card card-modern p-4 mb-4">
+        <h5 class="fw-bold mb-3 text-secondary">Bộ lọc tìm kiếm</h5>
+        <form th:action="@{/admin/cars}" method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="keyword" class="form-label small fw-semibold">Từ khóa tìm kiếm</label>
+                <input type="text" class="form-control form-control-sm" id="keyword" name="keyword"
+                       th:value="${keyword}" placeholder="Nhập tên xe hoặc mô tả...">
+            </div>
+
+            <div class="col-md-3">
+                <label for="producerId" class="form-label small fw-semibold">Hãng sản xuất</label>
+                <select class="form-select form-select-sm" id="producerId" name="producerId">
+                    <option value="">-- Tất cả các hãng --</option>
+                    <option th:each="p : ${producers}"
+                            th:value="${p.producerId}"
+                            th:text="${p.producerName}"
+                            th:selected="${selectedProducerId == p.producerId}">
+                        Toyota
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="status" class="form-label small fw-semibold">Trạng thái xe</label>
+                <select class="form-select form-select-sm" id="status" name="status">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option th:each="st : ${statuses}"
+                            th:value="${st.name()}"
+                            th:text="${st.name() == 'Available' ? 'Có sẵn (Available)' : (st.name() == 'Rented' ? 'Đang thuê (Rented)' : 'Vô hiệu hóa (Inactive)')}"
+                            th:selected="${selectedStatus == st.name()}">
+                        Available
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">
+                    Lọc dữ liệu
+                </button>
+                <a th:href="@{/admin/cars}" class="btn btn-outline-secondary btn-sm px-3" title="Xóa bộ lọc">
+                    Đặt lại
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Cars Table Card -->
+    <div class="card card-modern p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0 text-dark">
+                Danh sách xe trong hệ thống
+                <span class="badge bg-secondary ms-2 fw-normal" th:text="${totalElements} + ' xe'">0 xe</span>
+            </h5>
+            <div class="text-muted small">
+                Sắp xếp: Mới nhất trước (ID giảm dần)
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${#lists.isEmpty(cars)}" class="text-center py-5">
+            <h5 class="fw-bold text-secondary">Không tìm thấy xe nào</h5>
+            <p class="text-muted small mb-3">Không có phương tiện nào khớp với tiêu chí tìm kiếm hiện tại.</p>
+            <a th:href="@{/admin/cars}" class="btn btn-outline-primary btn-sm">Xem tất cả xe</a>
+        </div>
+
+        <!-- Table Data -->
+        <div class="table-responsive" th:if="${not #lists.isEmpty(cars)}">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" style="width: 70px;">Mã</th>
+                        <th scope="col">Tên xe</th>
+                        <th scope="col">Hãng SX</th>
+                        <th scope="col" class="text-center">Năm SX</th>
+                        <th scope="col">Màu sắc</th>
+                        <th scope="col" class="text-center">Số chỗ</th>
+                        <th scope="col" class="text-end">Giá thuê / ngày</th>
+                        <th scope="col">Ngày nhập</th>
+                        <th scope="col" class="text-center">Trạng thái</th>
+                        <th scope="col" class="text-center" style="width: 150px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="car : ${cars}">
+                        <td class="fw-bold text-secondary" th:text="'#' + ${car.carId}">#1</td>
+                        <td>
+                            <div class="fw-bold text-dark" th:text="${car.carName}">Toyota Camry</div>
+                            <div class="text-muted small text-truncate" style="max-width: 250px;" th:text="${car.description}">Mô tả chi tiết</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border" th:text="${car.producerName}">Toyota</span>
+                        </td>
+                        <td class="text-center" th:text="${car.carModelYear}">2023</td>
+                        <td th:text="${car.color}">Đen</td>
+                        <td class="text-center" th:text="${car.capacity} + ' chỗ'">5 chỗ</td>
+                        <td class="text-end fw-semibold text-primary"
+                            th:text="${#numbers.formatDecimal(car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' $'">
+                            1,500,000 $
+                        </td>
+                        <td class="small" th:text="${#temporals.format(car.importDate, 'dd/MM/yyyy')}">01/01/2023</td>
+                        <td class="text-center">
+                            <span th:if="${car.status == 'Available'}" class="badge bg-success">Có sẵn</span>
+                            <span th:if="${car.status == 'Rented'}" class="badge bg-warning text-dark">Đang thuê</span>
+                            <span th:if="${car.status == 'Inactive'}" class="badge bg-secondary">Vô hiệu hóa</span>
+                            <span th:if="${car.status != 'Available' and car.status != 'Rented' and car.status != 'Inactive'}"
+                                  class="badge bg-secondary" th:text="${car.status}">Khác</span>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-1">
+                                <a th:href="@{/admin/cars/edit/{id}(id=${car.carId})}"
+                                   class="btn btn-sm btn-outline-primary" title="Chỉnh sửa thông tin xe">
+                                    Sửa
+                                </a>
+                                <form th:action="@{/admin/cars/delete/{id}(id=${car.carId})}" method="post" class="d-inline"
+                                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa xe này? Nếu xe đã từng phát sinh đơn thuê, hệ thống sẽ tự động chuyển trạng thái sang Inactive thay vì xóa vật lý theo đúng quy định.');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa xe khỏi hệ thống">
+                                        Xóa
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Section -->
+        <nav th:if="${totalPages > 1}" class="mt-4" aria-label="Page navigation">
+            <ul class="pagination justify-content-center mb-0">
+                <!-- Previous Button -->
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                    <a class="page-link"
+                       th:href="@{/admin/cars(page=${currentPage - 1}, keyword=${keyword}, producerId=${selectedProducerId}, status=${selectedStatus})}"
+                       aria-label="Previous">
+                        &laquo; Trước
+                    </a>
+                </li>
+
+                <!-- Page Numbers -->
+                <li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                    class="page-item"
+                    th:classappend="${pageNum == currentPage} ? 'active' : ''">
+                    <a class="page-link"
+                       th:href="@{/admin/cars(page=${pageNum}, keyword=${keyword}, producerId=${selectedProducerId}, status=${selectedStatus})}"
+                       th:text="${pageNum + 1}">
+                        1
+                    </a>
+                </li>
+
+                <!-- Next Button -->
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                    <a class="page-link"
+                       th:href="@{/admin/cars(page=${currentPage + 1}, keyword=${keyword}, producerId=${selectedProducerId}, status=${selectedStatus})}"
+                       aria-label="Next">
+                        Sau &raquo;
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+</div>
+</body>
+</html>
+
