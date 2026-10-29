@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Chi tiết giao dịch thuê xe</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Header Section -->
+    <div class="card card-modern p-4 mb-4 border-start border-primary border-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    Đơn Thuê Xe <span class="text-primary" th:text="'#' + ${rental.carRentId}">#1</span>
+                </h2>
+                <p class="text-muted mb-0">
+                    Trạng thái hiện tại:
+                    <span th:if="${rental.status == 'Active'}" class="badge bg-warning text-dark px-2 py-1">Đang thuê (Active)</span>
+                    <span th:if="${rental.status == 'Completed'}" class="badge bg-success px-2 py-1">Hoàn thành (Completed)</span>
+                    <span th:if="${rental.status == 'Cancelled'}" class="badge bg-secondary px-2 py-1">Đã hủy (Cancelled)</span>
+                </p>
+            </div>
+            <div>
+                <a th:href="@{/admin/rentals}" class="btn btn-outline-secondary px-3">
+                    Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Col Left: Chi tiết thông tin -->
+        <div class="col-lg-8">
+            <!-- Thông tin khách hàng & Xe -->
+            <div class="card card-modern p-4 mb-4">
+                <h5 class="fw-bold text-secondary mb-3 pb-2 border-bottom">Thông tin bên thuê và phương tiện</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted">Họ và tên khách hàng</label>
+                        <div class="fw-bold fs-6 text-dark" th:text="${rental.customerFullName}">Nguyễn Văn A</div>
+                        <div class="small text-muted" th:text="'Mã khách hàng: #' + ${rental.customerId}">#1</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted">Số điện thoại liên lạc</label>
+                        <div class="fw-bold fs-6 text-primary" th:text="${rental.customerMobile}">0912345678</div>
+                        <div class="small text-muted" th:if="${rental.customerEmail != null}" th:text="${rental.customerEmail}">email@domain.com</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted">Tên phương tiện thuê</label>
+                        <div class="fw-bold fs-6 text-dark" th:text="${rental.carName}">Toyota Camry</div>
+                        <div class="small text-muted" th:text="'Mã xe: #' + ${rental.carId}">#10</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold text-muted">Hãng sản xuất</label>
+                        <div>
+                            <span class="badge bg-light text-dark border px-2 py-1"
+                                  th:text="${rental.carProducerName != null ? rental.carProducerName : 'N/A'}">Toyota</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thời gian & Chi phí -->
+            <div class="card card-modern p-4 mb-4">
+                <h5 class="fw-bold text-secondary mb-3 pb-2 border-bottom">Thời gian và Chi phí thuê xe</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Ngày nhận xe</label>
+                        <div class="fw-bold text-dark fs-6" th:text="${#temporals.format(rental.pickupDate, 'dd/MM/yyyy')}">01/01/2026</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Ngày trả xe</label>
+                        <div class="fw-bold text-dark fs-6" th:text="${#temporals.format(rental.returnDate, 'dd/MM/yyyy')}">05/01/2026</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold text-muted">Tổng chi phí thuê</label>
+                        <div class="fw-bold fs-5 text-success"
+                             th:text="${#numbers.formatDecimal(rental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' $'">
+                            1,500,000 $
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Đánh giá từ khách hàng -->
+            <div class="card card-modern p-4">
+                <h5 class="fw-bold text-secondary mb-3 pb-2 border-bottom">Đánh giá và Nhận xét</h5>
+                <div th:if="${rental.reviewStar != null}">
+                    <div class="mb-2">
+                        <span class="badge bg-warning text-dark fs-6 px-3 py-1"
+                              th:text="${rental.reviewStar} + ' / 5 sao'">5 / 5 sao</span>
+                    </div>
+                    <p class="text-dark bg-light p-3 rounded mb-0"
+                       th:text="${rental.reviewComment != null and !rental.reviewComment.isBlank() ? rental.reviewComment : 'Khách hàng không để lại nhận xét chi tiết.'}">
+                        Xe chạy êm ái, nội thất sạch sẽ.
+                    </p>
+                </div>
+                <div th:if="${rental.reviewStar == null}" class="text-muted small">
+                    Chưa có đánh giá nào cho chuyến đi này (khách hàng chỉ có thể đánh giá sau khi đơn hoàn thành).
+                </div>
+            </div>
+        </div>
+
+        <!-- Col Right: Cập nhật trạng thái -->
+        <div class="col-lg-4">
+            <div class="card card-modern p-4">
+                <h5 class="fw-bold text-dark mb-3">Điều Chỉnh Trạng Thái</h5>
+                <p class="text-muted small">Cập nhật tiến trình của giao dịch thuê xe:</p>
+
+                <form th:action="@{/admin/rentals/{id}/status(id=${rental.carRentId})}" method="post">
+                    <div class="mb-3">
+                        <label for="statusSelect" class="form-label small fw-semibold">Trạng thái mới</label>
+                        <select class="form-select" id="statusSelect" name="status">
+                            <option th:each="st : ${statuses}"
+                                    th:value="${st.name()}"
+                                    th:text="${st.name() == 'Active' ? 'Active (Đang thuê)' : (st.name() == 'Completed' ? 'Completed (Hoàn thành)' : 'Cancelled (Đã hủy)')}"
+                                    th:selected="${rental.status == st.name()}">
+                                Active
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="alert alert-info small py-2 px-3 mb-3">
+                        <strong>Quy tắc hệ thống:</strong> Khi chuyển đơn sang <code>Completed</code> hoặc <code>Cancelled</code>, xe sẽ tự động chuyển về trạng thái <strong>Available (Có sẵn)</strong>.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 fw-semibold"
+                            onclick="return confirm('Bạn có chắc chắn muốn lưu thay đổi trạng thái cho đơn thuê này?');">
+                        Cập nhật trạng thái
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
+

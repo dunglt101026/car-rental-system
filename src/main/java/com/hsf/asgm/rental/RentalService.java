@@ -9,6 +9,11 @@ import com.hsf.asgm.customer.Customer;
 import com.hsf.asgm.customer.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +32,12 @@ public class RentalService {
     private final CarRepository carRepository;
     private final CustomerRepository customerRepository;
     private final RentalMapper rentalMapper;
+
+    public Page<RentalResponse> getAdminRentals(String keyword, String status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "carRentId"));
+        Specification<CarRental> spec = RentalSpecification.filterRentals(keyword, status);
+        return carRentalRepository.findAll(spec, pageable).map(rentalMapper::toResponse);
+    }
 
     public List<RentalResponse> getCustomerRentals(Integer customerId) {
         return carRentalRepository.findByCustomerIdWithDetails(customerId)
@@ -95,5 +106,105 @@ public class RentalService {
                 savedRental.getCarRentId(), customerId, car.getCarId(), totalRentPrice);
 
         return rentalMapper.toResponse(savedRental);
+    }
+
+    @Transactional
+    public RentalResponse updateRentalStatus(Integer carRentId, String newStatus) {
+        CarRental rental = getRentalEntity(carRentId);
+        String oldStatus = rental.getStatus();
+
+        RentalStatus targetStatus;
+        try {
+            targetStatus = RentalStatus.valueOf(newStatus.trim());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new BusinessException("Trạng thái đơn thuê không hợp lệ: " + newStatus);
+        }
+
+        // Business Rule: When order transitions to Completed or Cancelled,
+        // release the car back to Available status
+        if (targetStatus == RentalStatus.Completed || targetStatus == RentalStatus.Cancelled) {
+            Car car = rental.getCar();
+            if (car != null && CarStatus.Rented.name().equalsIgnoreCase(car.getStatus())) {
+                car.setStatus(CarStatus.Available.name());
+                carRepository.save(car);
+                log.info("Car ID {} status updated to Available because rental ID {} changed from {} to {}",
+                        car.getCarId(), carRentId, oldStatus, targetStatus.name());
+            }
+        } else if (targetStatus == RentalStatus.Active) {
+            Car car = rental.getCar();
+            if (car != null && CarStatus.Available.name().equalsIgnoreCase(car.getStatus())) {
+                car.setStatus(CarStatus.Rented.name());
+                carRepository.save(car);
+                log.info("Car ID {} status updated to Rented because rental ID {} reactivated",
+                        car.getCarId(), carRentId);
+            }
+        }
+
+        rental.setStatus(targetStatus.name());
+        CarRental saved = carRentalRepository.save(rental);
+        log.info("Updated rental ID {} status from {} to {}", carRentId, oldStatus, targetStatus.name());
+        return rentalMapper.toResponse(saved);
+    }
+
+    public RentalReportResponse generateReport(LocalDate startDate, LocalDate endDate, String sortBy) {
+        if (startDate == null) {
+            startDate = LocalDate.now().minusDays(30);
+        }
+        if (endDate == null) {
+            endDate = LocalDate.now();
+        }
+        if (startDate.isAfter(endDate)) {
+            LocalDate temp = startDate;
+            startDate = endDate;
+            endDate = temp;
+        }
+
+        String validSortBy = "revenue".equalsIgnoreCase(sortBy) ? "revenue" : "date";
+
+        Sort sort = "revenue".equalsIgnoreCase(validSortBy)
+                ? Sort.by(Sort.Direction.DESC, "rentPrice").and(Sort.by(Sort.Direction.DESC, "carRentId"))
+                : Sort.by(Sort.Direction.DESC, "pickupDate").and(Sort.by(Sort.Direction.DESC, "carRentId"));
+
+        Specification<CarRental> spec = RentalSpecification.filterReport(startDate, endDate);
+        List<CarRental> rentals = carRentalRepository.findAll(spec, sort);
+
+        List<RentalResponse> rentalResponses = rentals.stream()
+                .map(rentalMapper::toResponse)
+                .toList();
+
+        BigDecimal totalRevenue = BigDecimal.ZERO;
+        BigDecimal completedRevenue = BigDecimal.ZERO;
+        long activeCount = 0;
+        long completedCount = 0;
+        long cancelledCount = 0;
+
+        for (CarRental r : rentals) {
+            if (r.getRentPrice() != null) {
+                totalRevenue = totalRevenue.add(r.getRentPrice());
+                if (RentalStatus.Completed.name().equalsIgnoreCase(r.getStatus())) {
+                    completedRevenue = completedRevenue.add(r.getRentPrice());
+                }
+            }
+            if (RentalStatus.Active.name().equalsIgnoreCase(r.getStatus())) {
+                activeCount++;
+            } else if (RentalStatus.Completed.name().equalsIgnoreCase(r.getStatus())) {
+                completedCount++;
+            } else if (RentalStatus.Cancelled.name().equalsIgnoreCase(r.getStatus())) {
+                cancelledCount++;
+            }
+        }
+
+        return new RentalReportResponse(
+                startDate,
+                endDate,
+                validSortBy,
+                rentalResponses.size(),
+                totalRevenue,
+                completedRevenue,
+                activeCount,
+                completedCount,
+                cancelledCount,
+                rentalResponses
+        );
     }
 }

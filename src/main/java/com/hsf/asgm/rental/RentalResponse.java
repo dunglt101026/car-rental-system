@@ -8,8 +8,10 @@ public record RentalResponse(
         Integer customerId,
         String customerFullName,
         String customerMobile,
+        String customerEmail,
         Integer carId,
         String carName,
+        String carProducerName,
         LocalDate pickupDate,
         LocalDate returnDate,
         BigDecimal rentPrice,
@@ -17,4 +19,3 @@ public record RentalResponse(
         Integer reviewStar,
         String reviewComment
 ) {}
-
