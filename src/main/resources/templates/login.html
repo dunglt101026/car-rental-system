@@ -1,70 +1,53 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/public-layout}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - Car Rental System</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Đăng nhập</title>
 </head>
-<body class="bg-light">
-
-<div th:replace="~{fragments/navbar :: navbar}"></div>
-
-<main class="container my-5">
+<body>
+<div layout:fragment="content" class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-5 col-lg-4">
             <div class="card card-modern p-4">
                 <div class="text-center mb-4">
-                    <h3 class="fw-bold text-primary">🚗 Đăng Nhập</h3>
-                    <p class="text-muted small">Car Rental System Server-Side Authentication</p>
+                    <h3 class="fw-bold text-primary">Đăng Nhập</h3>
+                    <p class="text-muted small mb-0">Hệ thống cho thuê xe trực tuyến</p>
                 </div>
 
-                <!-- Thông báo lỗi khi đăng nhập sai -->
-                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show small" role="alert">
-                    <span th:text="${errorMessage}">Tên đăng nhập hoặc mật khẩu không chính xác!</span>
-                </div>
-
-                <!-- Thông báo khi đăng xuất thành công -->
-                <div th:if="${logoutMessage}" class="alert alert-success alert-dismissible fade show small" role="alert">
-                    <span th:text="${logoutMessage}">Bạn đã đăng xuất thành công.</span>
-                </div>
-
-                <!-- Form Login thuần Server-side (không dùng AJAX) -->
+                <!-- Form Login -->
                 <form th:action="@{/login}" method="post">
                     <div class="mb-3">
-                        <label for="username" class="form-label small fw-semibold">Tên đăng nhập</label>
+                        <label for="username" class="form-label small fw-semibold">Tên đăng nhập hoặc Email</label>
                         <input type="text" class="form-control" id="username" name="username"
-                               placeholder="admin hoặc customer" required autofocus>
+                               placeholder="admin@carrent.com hoặc admin" required autofocus>
                     </div>
 
                     <div class="mb-3">
                         <label for="password" class="form-label small fw-semibold">Mật khẩu</label>
                         <input type="password" class="form-control" id="password" name="password"
-                               placeholder="••••••••" required>
+                               placeholder="Mật khẩu của bạn" required>
                     </div>
 
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-primary btn-rounded fw-semibold">
+                        <button type="submit" class="btn btn-primary fw-semibold py-2">
                             Đăng nhập
                         </button>
                     </div>
                 </form>
 
-                <div class="mt-4 pt-3 border-top text-center text-muted small">
-                    <p class="mb-1"><strong>Tài khoản thử nghiệm:</strong></p>
-                    <p class="mb-0">Admin: <code>admin</code> / <code>admin123</code></p>
-                    <p class="mb-0">Khách: <code>customer</code> / <code>customer123</code></p>
+                <div class="text-center mt-3 small">
+                    Chưa có tài khoản? <a th:href="@{/register}" class="text-primary fw-semibold text-decoration-none">Đăng ký ngay</a>
+                </div>
+
+                <div class="border-top mt-4 pt-3 text-muted" style="font-size: 0.8rem;">
+                    <div><strong>Gợi ý tài khoản trong cơ sở dữ liệu:</strong></div>
+                    <div>Quản trị: <code>admin</code> / <code>admin123</code></div>
+                    <div>Khách hàng: <code>customer1</code> / <code>123456</code></div>
                 </div>
             </div>
         </div>
     </div>
-</main>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</div>
 </body>
 </html>
-
