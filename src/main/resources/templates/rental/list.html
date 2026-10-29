@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/public-layout}">
+<head>
+    <title>Lịch sử thuê xe</title>
+</head>
+<body>
+<div layout:fragment="content" class="container my-5">
+    <!-- Header Banner -->
+    <div class="card card-modern p-4 mb-4 border-start border-primary border-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">Lịch Sử Đơn Thuê Xe Của Tôi</h2>
+                <p class="text-muted mb-0">
+                    Khách hàng: <strong class="text-primary" th:text="${customer.fullName}">Nguyễn Văn A</strong>
+                    (Số điện thoại: <span th:text="${customer.mobile}">0901234567</span>)
+                </p>
+            </div>
+            <a th:href="@{/cars}" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm">
+                Thuê xe mới
+            </a>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(rentals)}" class="card card-modern p-5 text-center">
+        <h4 class="fw-bold text-secondary mb-2">Bạn chưa có đơn thuê xe nào</h4>
+        <p class="text-muted mb-3">Hãy khám phá bộ sưu tập xe phong phú và đặt ngay chuyến xe yêu thích.</p>
+        <div>
+            <a th:href="@{/cars}" class="btn btn-primary px-4">Xem Danh Mục Xe</a>
+        </div>
+    </div>
+
+    <!-- Rentals Table -->
+    <div class="card card-modern p-4" th:if="${not #lists.isEmpty(rentals)}">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center" style="width: 80px;">Mã đơn</th>
+                        <th>Chi tiết xe</th>
+                        <th>Thời gian thuê xe</th>
+                        <th class="text-end">Tổng chi phí</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th>Đánh giá và nhận xét</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${rentals}">
+                        <td class="text-center fw-bold text-secondary">
+                            #<span th:text="${r.carRentId}">1</span>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark fs-6" th:text="${r.carName}">Toyota Camry 2.5Q</div>
+                            <small class="text-muted">Mã xe: #<span th:text="${r.carId}">1</span></small>
+                        </td>
+                        <td>
+                            <div class="small">
+                                <span class="text-muted">Nhận:</span>
+                                <strong><span th:text="${#temporals.format(r.pickupDate, 'dd/MM/yyyy')}">01/09/2026</span></strong>
+                            </div>
+                            <div class="small">
+                                <span class="text-muted">Trả:</span>
+                                <strong><span th:text="${#temporals.format(r.returnDate, 'dd/MM/yyyy')}">05/09/2026</span></strong>
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <span class="fw-bold text-primary fs-6"
+                                  th:text="${'$' + #numbers.formatDecimal(r.rentPrice, 1, 2)}">
+                                $320.00
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${r.status == 'Active'}" class="badge bg-primary px-3 py-2">
+                                Đang thuê
+                            </span>
+                            <span th:if="${r.status == 'Completed'}" class="badge bg-success px-3 py-2">
+                                Hoàn thành
+                            </span>
+                            <span th:if="${r.status == 'Cancelled'}" class="badge bg-secondary px-3 py-2">
+                                Đã hủy
+                            </span>
+                        </td>
+                        <td>
+                            <!-- Already Reviewed -->
+                            <div th:if="${r.reviewStar != null}">
+                                <div class="mb-1">
+                                    <span class="badge bg-warning text-dark"><span th:text="${r.reviewStar}">5</span>/5 sao</span>
+                                </div>
+                                <div class="small text-muted fst-italic" th:text="${'“' + r.reviewComment + '”'}">
+                                    “Xe chạy rất êm và tiết kiệm xăng”
+                                </div>
+                            </div>
+
+                            <!-- Not Reviewed & Completed -> Button to Open Review Modal -->
+                            <div th:if="${r.reviewStar == null and r.status == 'Completed'}">
+                                <button type="button" class="btn btn-outline-warning btn-sm text-dark fw-semibold btn-review"
+                                        data-bs-toggle="modal" data-bs-target="#reviewModal"
+                                        th:attr="data-rental-id=${r.carRentId}, data-car-name=${r.carName}">
+                                    Viết đánh giá
+                                </button>
+                            </div>
+
+                            <!-- Not Completed & No Review -->
+                            <div th:if="${r.reviewStar == null and r.status != 'Completed'}">
+                                <span class="text-muted small"><em>Chờ hoàn thành chuyến</em></span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Đánh Giá Xe -->
+<div layout:fragment="content" class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <!-- Modal content stays inside or outside via scripts -->
+</div>
+
+<th:block layout:fragment="scripts">
+<!-- Modal Đánh Giá Xe -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form th:action="@{/customer/reviews}" method="post">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold" id="reviewModalLabel">Đánh Giá Chuyến Xe</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="modalRentalId" name="carRentId" value="" />
+
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Dòng xe đánh giá:</label>
+                        <div class="fw-bold fs-6 text-primary" id="modalCarName">Toyota Camry</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reviewStar" class="form-label small fw-semibold">Xếp hạng mức độ hài lòng <span class="text-danger">*</span></label>
+                        <select class="form-select" id="reviewStar" name="reviewStar" required>
+                            <option value="5" selected>5 sao - Xuất sắc / Rất hài lòng</option>
+                            <option value="4">4 sao - Tốt / Hài lòng</option>
+                            <option value="3">3 sao - Bình thường</option>
+                            <option value="2">2 sao - Chưa hài lòng</option>
+                            <option value="1">1 sao - Kém</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="comment" class="form-label small fw-semibold">Nhận xét chi tiết <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="comment" name="comment" rows="4"
+                                  placeholder="Chia sẻ trải nghiệm của bạn về tình trạng xe, độ sạch sẽ, vận hành..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary px-4">Gửi đánh giá</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const reviewButtons = document.querySelectorAll(".btn-review");
+        const modalRentalId = document.getElementById("modalRentalId");
+        const modalCarName = document.getElementById("modalCarName");
+
+        reviewButtons.forEach(btn => {
+            btn.addEventListener("click", function () {
+                const rentalId = this.getAttribute("data-rental-id");
+                const carName = this.getAttribute("data-car-name");
+                modalRentalId.value = rentalId;
+                modalCarName.textContent = carName + " (Đơn thuê #" + rentalId + ")";
+            });
+        });
+    });
+</script>
+</th:block>
+</body>
+</html>
