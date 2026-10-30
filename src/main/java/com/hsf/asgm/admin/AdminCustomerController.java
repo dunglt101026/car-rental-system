@@ -1,5 +1,7 @@
 package com.hsf.asgm.admin;
 
+import com.hsf.asgm.auth.AuthService;
+import com.hsf.asgm.auth.RegisterRequest;
 import com.hsf.asgm.common.exception.BusinessException;
 import com.hsf.asgm.customer.CustomerProfileRequest;
 import com.hsf.asgm.customer.CustomerResponse;
@@ -21,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AdminCustomerController {
 
     private final CustomerService customerService;
+    private final AuthService authService;
 
     @GetMapping
     public String listCustomers(
@@ -43,6 +46,52 @@ public class AdminCustomerController {
         model.addAttribute("activeTab", "customers");
 
         return "admin/customer/list";
+    }
+
+    @GetMapping("/new")
+    public String showCreateForm(Model model) {
+        if (!model.containsAttribute("registerRequest")) {
+            model.addAttribute("registerRequest", new RegisterRequest(
+                    "", "", "", "", "", null, "", "", null
+            ));
+        }
+        model.addAttribute("activeTab", "customers");
+        return "admin/customer/create";
+    }
+
+    @PostMapping("/new")
+    public String handleCreateCustomer(
+            @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Model model
+    ) {
+        model.addAttribute("activeTab", "customers");
+        if (bindingResult.hasErrors()) {
+            return "admin/customer/create";
+        }
+
+        try {
+            authService.register(registerRequest);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Thêm khách hàng \"" + registerRequest.fullName().trim() + "\" thành công!");
+            return "redirect:/admin/customers";
+        } catch (BusinessException ex) {
+            model.addAttribute("errorMessage", ex.getMessage());
+            return "admin/customer/create";
+        }
+    }
+
+    @PostMapping("/delete/{id}")
+    public String handleDeleteCustomer(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            String fullName = customerService.deleteCustomer(id);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Đã xóa khách hàng \"" + fullName + "\" (Mã: #" + id + ") cùng tài khoản đăng nhập.");
+        } catch (BusinessException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/admin/customers";
     }
 
     @GetMapping("/edit/{id}")

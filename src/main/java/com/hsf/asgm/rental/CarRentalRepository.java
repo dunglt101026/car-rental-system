@@ -19,4 +19,5 @@ public interface CarRentalRepository extends JpaRepository<CarRental, Integer>, 
 
     List<CarRental> findByPickupDateBetweenOrderByPickupDateDesc(LocalDate startDate, LocalDate endDate);
     boolean existsByCar_CarId(Integer carId);
+    boolean existsByCustomer_CustomerId(Integer customerId);
 }

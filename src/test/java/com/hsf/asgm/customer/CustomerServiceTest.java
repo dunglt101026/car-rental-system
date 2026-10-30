@@ -1,7 +1,9 @@
 package com.hsf.asgm.customer;
 
 import com.hsf.asgm.auth.Account;
+import com.hsf.asgm.auth.AccountRepository;
 import com.hsf.asgm.auth.Role;
+import com.hsf.asgm.rental.CarRentalRepository;
 import com.hsf.asgm.common.exception.BusinessException;
 import com.hsf.asgm.common.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +35,12 @@ class CustomerServiceTest {
 
     @Mock
     private CustomerMapper customerMapper;
+
+    @Mock
+    private AccountRepository accountRepository;
+
+    @Mock
+    private CarRentalRepository carRentalRepository;
 
     @InjectMocks
     private CustomerService customerService;
@@ -197,5 +205,31 @@ class CustomerServiceTest {
 
         verify(customerRepository, never()).save(any());
     }
-}
 
+    @Test
+    @DisplayName("deleteCustomer - Khách chưa có đơn thuê -> Xóa khách hàng và tài khoản liên kết")
+    void testDeleteCustomer_NoRentals_ShouldDeleteCustomerAndAccount() {
+        when(customerRepository.findById(1)).thenReturn(Optional.of(customer1));
+        when(carRentalRepository.existsByCustomer_CustomerId(1)).thenReturn(false);
+
+        String fullName = customerService.deleteCustomer(1);
+
+        assertThat(fullName).isEqualTo("Nguyễn Văn A");
+        verify(customerRepository).delete(customer1);
+        verify(accountRepository).delete(account1);
+    }
+
+    @Test
+    @DisplayName("deleteCustomer - Khách đã có đơn thuê -> Ném BusinessException, không xóa")
+    void testDeleteCustomer_HasRentals_ShouldThrowException() {
+        when(customerRepository.findById(1)).thenReturn(Optional.of(customer1));
+        when(carRentalRepository.existsByCustomer_CustomerId(1)).thenReturn(true);
+
+        assertThatThrownBy(() -> customerService.deleteCustomer(1))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("đã phát sinh giao dịch thuê xe");
+
+        verify(customerRepository, never()).delete(any(Customer.class));
+        verify(accountRepository, never()).delete(any(Account.class));
+    }
+}

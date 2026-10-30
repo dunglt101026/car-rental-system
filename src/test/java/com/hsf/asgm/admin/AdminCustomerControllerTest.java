@@ -1,6 +1,9 @@
 package com.hsf.asgm.admin;
 
 import com.hsf.asgm.auth.AccountResponse;
+import com.hsf.asgm.auth.AuthService;
+import com.hsf.asgm.auth.RegisterRequest;
+import com.hsf.asgm.common.exception.BusinessException;
 import com.hsf.asgm.common.config.AuthInterceptor;
 import com.hsf.asgm.customer.CustomerProfileRequest;
 import com.hsf.asgm.customer.CustomerResponse;
@@ -22,7 +25,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -34,6 +37,9 @@ class AdminCustomerControllerTest {
 
     @Mock
     private CustomerService customerService;
+
+    @Mock
+    private AuthService authService;
 
     @InjectMocks
     private AdminCustomerController adminCustomerController;
@@ -158,5 +164,70 @@ class AdminCustomerControllerTest {
                 .andExpect(redirectedUrl("/admin/customers"))
                 .andExpect(flash().attributeExists("successMessage"));
     }
-}
 
+    @Test
+    @DisplayName("GET /admin/customers/new - Quyền Admin -> Hiển thị form thêm khách hàng")
+    void testShowCreateForm_AdminRole_ShouldReturnCreateView() throws Exception {
+        mockMvc.perform(get("/admin/customers/new").session(createAdminSession()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/customer/create"))
+                .andExpect(model().attributeExists("registerRequest"));
+    }
+
+    @Test
+    @DisplayName("POST /admin/customers/new - Dữ liệu hợp lệ -> Tạo khách hàng và chuyển về danh sách")
+    void testCreateCustomer_ValidData_ShouldRedirectList() throws Exception {
+        mockMvc.perform(post("/admin/customers/new")
+                        .session(createAdminSession())
+                        .param("accountName", "newcustomer")
+                        .param("email", "newcustomer@fucar.com")
+                        .param("password", "secret123")
+                        .param("fullName", "Trần Thị B")
+                        .param("mobile", "0987654321")
+                        .param("birthday", "1995-03-15")
+                        .param("identityCard", "098765432109")
+                        .param("licenceNumber", "B2-222222")
+                        .param("licenceDate", "2019-06-01"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/customers"))
+                .andExpect(flash().attributeExists("successMessage"));
+
+        verify(authService).register(any(RegisterRequest.class));
+    }
+
+    @Test
+    @DisplayName("POST /admin/customers/new - Thiếu dữ liệu -> Hiển thị lại form, không tạo khách hàng")
+    void testCreateCustomer_InvalidData_ShouldReturnForm() throws Exception {
+        mockMvc.perform(post("/admin/customers/new")
+                        .session(createAdminSession())
+                        .param("accountName", "")
+                        .param("email", "invalid"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/customer/create"))
+                .andExpect(model().attributeHasFieldErrors("registerRequest", "accountName", "email"));
+
+        verify(authService, never()).register(any());
+    }
+
+    @Test
+    @DisplayName("POST /admin/customers/delete/{id} - Khách chưa có đơn thuê -> Xóa thành công")
+    void testDeleteCustomer_Success_ShouldRedirectWithSuccess() throws Exception {
+        when(customerService.deleteCustomer(7)).thenReturn("Trần Thị B");
+
+        mockMvc.perform(post("/admin/customers/delete/7").session(createAdminSession()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/customers"))
+                .andExpect(flash().attributeExists("successMessage"));
+    }
+
+    @Test
+    @DisplayName("POST /admin/customers/delete/{id} - Khách đã có đơn thuê -> Báo lỗi")
+    void testDeleteCustomer_HasRentals_ShouldRedirectWithError() throws Exception {
+        when(customerService.deleteCustomer(1)).thenThrow(new BusinessException("Không thể xóa khách hàng"));
+
+        mockMvc.perform(post("/admin/customers/delete/1").session(createAdminSession()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/customers"))
+                .andExpect(flash().attribute("errorMessage", "Không thể xóa khách hàng"));
+    }
+}

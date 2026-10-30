@@ -1,7 +1,10 @@
 package com.hsf.asgm.customer;
 
+import com.hsf.asgm.auth.Account;
+import com.hsf.asgm.auth.AccountRepository;
 import com.hsf.asgm.common.exception.BusinessException;
 import com.hsf.asgm.common.exception.ResourceNotFoundException;
+import com.hsf.asgm.rental.CarRentalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +23,8 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final AccountRepository accountRepository;
+    private final CarRentalRepository carRentalRepository;
 
     public Page<CustomerResponse> getAdminCustomers(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "customerId"));
@@ -84,5 +89,28 @@ public class CustomerService {
         Customer saved = customerRepository.save(customer);
         log.info("Updated customer profile id={}", saved.getCustomerId());
         return customerMapper.toResponse(saved);
+    }
+
+    /**
+     * Deletes a customer together with the linked login account.
+     * Customers who already have rental transactions cannot be deleted.
+     */
+    @Transactional
+    public String deleteCustomer(Integer customerId) {
+        Customer customer = getCustomerEntity(customerId);
+
+        if (carRentalRepository.existsByCustomer_CustomerId(customerId)) {
+            throw new BusinessException("Không thể xóa khách hàng \"" + customer.getFullName()
+                    + "\" vì đã phát sinh giao dịch thuê xe.");
+        }
+
+        Account account = customer.getAccount();
+        customerRepository.delete(customer);
+        if (account != null) {
+            accountRepository.delete(account);
+        }
+
+        log.info("Deleted customer id={} and linked account", customerId);
+        return customer.getFullName();
     }
 }
