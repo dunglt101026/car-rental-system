@@ -178,7 +178,8 @@ public class RentalService {
         long cancelledCount = 0;
 
         for (CarRental r : rentals) {
-            if (r.getRentPrice() != null) {
+            // Cancelled rentals generate no revenue
+            if (r.getRentPrice() != null && !RentalStatus.Cancelled.name().equalsIgnoreCase(r.getStatus())) {
                 totalRevenue = totalRevenue.add(r.getRentPrice());
                 if (RentalStatus.Completed.name().equalsIgnoreCase(r.getStatus())) {
                     completedRevenue = completedRevenue.add(r.getRentPrice());

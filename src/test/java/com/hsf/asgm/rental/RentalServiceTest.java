@@ -240,5 +240,29 @@ class RentalServiceTest {
         assertThat(report.completedCount()).isEqualTo(1);
         assertThat(report.sortBy()).isEqualTo("date");
     }
+
+    @Test
+    @DisplayName("generateReport - Đơn Cancelled không được cộng vào tổng doanh thu")
+    void testGenerateReport_ExcludesCancelledFromRevenue() {
+        CarRental cancelled = CarRental.builder()
+                .carRentId(12)
+                .customer(testCustomer)
+                .car(testCar)
+                .pickupDate(LocalDate.now().minusDays(1))
+                .returnDate(LocalDate.now().plusDays(2))
+                .rentPrice(BigDecimal.valueOf(4000000))
+                .status(RentalStatus.Cancelled.name())
+                .build();
+
+        when(carRentalRepository.findAll(any(Specification.class), any(org.springframework.data.domain.Sort.class)))
+                .thenReturn(List.of(testRental, cancelled));
+
+        RentalReportResponse report = rentalService.generateReport(null, null, "revenue");
+
+        assertThat(report.totalRentals()).isEqualTo(2);
+        assertThat(report.totalRevenue()).isEqualByComparingTo(BigDecimal.valueOf(3000000));
+        assertThat(report.cancelledCount()).isEqualTo(1);
+        assertThat(report.sortBy()).isEqualTo("revenue");
+    }
 }
 
