@@ -1,10 +1,12 @@
 package com.hsf.asgm.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -13,6 +15,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleResourceNotFound(ResourceNotFoundException ex, Model model) {
         log.warn("Resource not found: {}", ex.getMessage());
         model.addAttribute("errorMessage", ex.getMessage());
@@ -20,6 +23,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleNoResourceFound(NoResourceFoundException ex, Model model) {
         log.warn("Route or static resource not found: {}", ex.getMessage());
         model.addAttribute("errorMessage", "Đường dẫn không tồn tại trên hệ thống.");
@@ -27,6 +31,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex, Model model) {
         log.warn("Parameter type mismatch: name={}, value={}", ex.getName(), ex.getValue());
         model.addAttribute("errorMessage", "Tham số yêu cầu không đúng định dạng hoặc tài nguyên không tồn tại.");
@@ -34,6 +39,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleMissingParams(MissingServletRequestParameterException ex, Model model) {
         log.warn("Missing request parameter: {}", ex.getParameterName());
         model.addAttribute("errorMessage", "Thiếu tham số bắt buộc: " + ex.getParameterName());
@@ -41,6 +47,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BusinessException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleBusinessException(BusinessException ex, Model model) {
         log.warn("Business rule violation: {}", ex.getMessage());
         model.addAttribute("errorMessage", ex.getMessage());
@@ -48,6 +55,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleGeneralException(Exception ex, Model model) {
         log.error("Internal Server Error: ", ex);
         model.addAttribute("errorMessage", "Đã có sự cố bất ngờ xảy ra phía máy chủ. Vui lòng thử lại sau.");
