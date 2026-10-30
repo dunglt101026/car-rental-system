@@ -114,16 +114,17 @@
                 <h5 class="fw-bold text-dark mb-3">Điều Chỉnh Trạng Thái</h5>
                 <p class="text-muted small">Cập nhật tiến trình của giao dịch thuê xe:</p>
 
-                <form th:action="@{/admin/rentals/{id}/status(id=${rental.carRentId})}" method="post">
+                <div th:if="${rental.status != 'Active'}" class="alert alert-secondary small mb-0">
+                    Đơn thuê đã kết thúc (<strong th:text="${rental.status}">Completed</strong>), không thể thay đổi trạng thái.
+                </div>
+
+                <form th:if="${rental.status == 'Active'}"
+                      th:action="@{/admin/rentals/{id}/status(id=${rental.carRentId})}" method="post">
                     <div class="mb-3">
                         <label for="statusSelect" class="form-label small fw-semibold">Trạng thái mới</label>
                         <select class="form-select" id="statusSelect" name="status">
-                            <option th:each="st : ${statuses}"
-                                    th:value="${st.name()}"
-                                    th:text="${st.name() == 'Active' ? 'Active (Đang thuê)' : (st.name() == 'Completed' ? 'Completed (Hoàn thành)' : 'Cancelled (Đã hủy)')}"
-                                    th:selected="${rental.status == st.name()}">
-                                Active
-                            </option>
+                            <option value="Completed">Completed (Hoàn thành)</option>
+                            <option value="Cancelled">Cancelled (Đã hủy)</option>
                         </select>
                     </div>
 

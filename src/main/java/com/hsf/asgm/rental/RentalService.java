@@ -120,24 +120,23 @@ public class RentalService {
             throw new BusinessException("Trạng thái đơn thuê không hợp lệ: " + newStatus);
         }
 
-        // Business Rule: When order transitions to Completed or Cancelled,
-        // release the car back to Available status
-        if (targetStatus == RentalStatus.Completed || targetStatus == RentalStatus.Cancelled) {
-            Car car = rental.getCar();
-            if (car != null && CarStatus.Rented.name().equalsIgnoreCase(car.getStatus())) {
-                car.setStatus(CarStatus.Available.name());
-                carRepository.save(car);
-                log.info("Car ID {} status updated to Available because rental ID {} changed from {} to {}",
-                        car.getCarId(), carRentId, oldStatus, targetStatus.name());
-            }
-        } else if (targetStatus == RentalStatus.Active) {
-            Car car = rental.getCar();
-            if (car != null && CarStatus.Available.name().equalsIgnoreCase(car.getStatus())) {
-                car.setStatus(CarStatus.Rented.name());
-                carRepository.save(car);
-                log.info("Car ID {} status updated to Rented because rental ID {} reactivated",
-                        car.getCarId(), carRentId);
-            }
+        // Business Rule: Completed and Cancelled are final states.
+        // Only an Active rental can move, and only to Completed or Cancelled.
+        if (!RentalStatus.Active.name().equalsIgnoreCase(oldStatus)) {
+            throw new BusinessException("Đơn thuê #" + carRentId + " đã kết thúc (" + oldStatus
+                    + "), không thể thay đổi trạng thái.");
+        }
+        if (targetStatus == RentalStatus.Active) {
+            throw new BusinessException("Đơn thuê #" + carRentId + " đang ở trạng thái Active.");
+        }
+
+        // Release the car back to Available status
+        Car car = rental.getCar();
+        if (car != null && CarStatus.Rented.name().equalsIgnoreCase(car.getStatus())) {
+            car.setStatus(CarStatus.Available.name());
+            carRepository.save(car);
+            log.info("Car ID {} status updated to Available because rental ID {} changed from {} to {}",
+                    car.getCarId(), carRentId, oldStatus, targetStatus.name());
         }
 
         rental.setStatus(targetStatus.name());

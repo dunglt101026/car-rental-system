@@ -154,6 +154,50 @@ class RentalServiceTest {
     }
 
     @Test
+    @DisplayName("updateRentalStatus - Đơn Completed không thể mở lại Active -> Ném BusinessException")
+    void testUpdateRentalStatus_CompletedToActive_ShouldThrowException() {
+        testRental.setStatus(RentalStatus.Completed.name());
+        testCar.setStatus(CarStatus.Rented.name()); // xe đang được thuê bởi đơn khác
+        when(carRentalRepository.findById(10)).thenReturn(Optional.of(testRental));
+
+        assertThatThrownBy(() -> rentalService.updateRentalStatus(10, "Active"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("đã kết thúc");
+
+        assertThat(testRental.getStatus()).isEqualTo(RentalStatus.Completed.name());
+        verify(carRepository, never()).save(any());
+        verify(carRentalRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("updateRentalStatus - Đơn Cancelled không thể đổi sang Completed -> Ném BusinessException")
+    void testUpdateRentalStatus_CancelledToCompleted_ShouldThrowException() {
+        testRental.setStatus(RentalStatus.Cancelled.name());
+        testCar.setStatus(CarStatus.Rented.name());
+        when(carRentalRepository.findById(10)).thenReturn(Optional.of(testRental));
+
+        assertThatThrownBy(() -> rentalService.updateRentalStatus(10, "Completed"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("đã kết thúc");
+
+        assertThat(testCar.getStatus()).isEqualTo(CarStatus.Rented.name());
+        verify(carRepository, never()).save(any());
+        verify(carRentalRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("updateRentalStatus - Active sang Active -> Ném BusinessException")
+    void testUpdateRentalStatus_ActiveToActive_ShouldThrowException() {
+        when(carRentalRepository.findById(10)).thenReturn(Optional.of(testRental));
+
+        assertThatThrownBy(() -> rentalService.updateRentalStatus(10, "Active"))
+                .isInstanceOf(BusinessException.class);
+
+        verify(carRepository, never()).save(any());
+        verify(carRentalRepository, never()).save(any());
+    }
+
+    @Test
     @DisplayName("generateReport - Tạo báo cáo doanh thu sắp xếp theo ngày nhận xe DESC")
     void testGenerateReport_SortByDate_Success() {
         LocalDate start = LocalDate.now().minusDays(10);
