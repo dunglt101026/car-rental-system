@@ -13,8 +13,8 @@ public class RentalSpecification {
     public static Specification<CarRental> filterRentals(String keyword, String status) {
         return (root, query, cb) -> {
             if (CarRental.class.equals(query.getResultType())) {
-                root.fetch("customer", JoinType.LEFT);
-                root.fetch("car", JoinType.LEFT);
+                root.fetch("customer", JoinType.LEFT).fetch("account", JoinType.LEFT);
+                root.fetch("car", JoinType.LEFT).fetch("producer", JoinType.LEFT);
                 root.fetch("review", JoinType.LEFT);
                 query.orderBy(cb.desc(root.get("carRentId")));
             }
@@ -38,8 +38,8 @@ public class RentalSpecification {
     public static Specification<CarRental> filterReport(LocalDate startDate, LocalDate endDate) {
         return (root, query, cb) -> {
             if (CarRental.class.equals(query.getResultType())) {
-                root.fetch("customer", JoinType.LEFT);
-                root.fetch("car", JoinType.LEFT);
+                root.fetch("customer", JoinType.LEFT).fetch("account", JoinType.LEFT);
+                root.fetch("car", JoinType.LEFT).fetch("producer", JoinType.LEFT);
                 root.fetch("review", JoinType.LEFT);
             }
 

@@ -99,7 +99,7 @@ class RentalServiceTest {
     @Test
     @DisplayName("updateRentalStatus - Chuyển sang Completed -> Xe tự động về trạng thái Available")
     void testUpdateRentalStatus_ToCompleted_ShouldSetCarToAvailable() {
-        when(carRentalRepository.findById(10)).thenReturn(Optional.of(testRental));
+        when(carRentalRepository.findWithDetailsByCarRentId(10)).thenReturn(Optional.of(testRental));
         when(carRentalRepository.save(any(CarRental.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         RentalResponse mockResponse = new RentalResponse(
@@ -121,7 +121,7 @@ class RentalServiceTest {
     @Test
     @DisplayName("updateRentalStatus - Chuyển sang Cancelled -> Xe tự động về trạng thái Available")
     void testUpdateRentalStatus_ToCancelled_ShouldSetCarToAvailable() {
-        when(carRentalRepository.findById(10)).thenReturn(Optional.of(testRental));
+        when(carRentalRepository.findWithDetailsByCarRentId(10)).thenReturn(Optional.of(testRental));
         when(carRentalRepository.save(any(CarRental.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         RentalResponse mockResponse = new RentalResponse(
@@ -143,7 +143,7 @@ class RentalServiceTest {
     @Test
     @DisplayName("updateRentalStatus - Trạng thái không hợp lệ -> Ném BusinessException")
     void testUpdateRentalStatus_InvalidStatus_ShouldThrowException() {
-        when(carRentalRepository.findById(10)).thenReturn(Optional.of(testRental));
+        when(carRentalRepository.findWithDetailsByCarRentId(10)).thenReturn(Optional.of(testRental));
 
         assertThatThrownBy(() -> rentalService.updateRentalStatus(10, "INVALID_STATUS"))
                 .isInstanceOf(BusinessException.class)
@@ -158,7 +158,7 @@ class RentalServiceTest {
     void testUpdateRentalStatus_CompletedToActive_ShouldThrowException() {
         testRental.setStatus(RentalStatus.Completed);
         testCar.setStatus(CarStatus.Rented); // xe đang được thuê bởi đơn khác
-        when(carRentalRepository.findById(10)).thenReturn(Optional.of(testRental));
+        when(carRentalRepository.findWithDetailsByCarRentId(10)).thenReturn(Optional.of(testRental));
 
         assertThatThrownBy(() -> rentalService.updateRentalStatus(10, "Active"))
                 .isInstanceOf(BusinessException.class)
@@ -174,7 +174,7 @@ class RentalServiceTest {
     void testUpdateRentalStatus_CancelledToCompleted_ShouldThrowException() {
         testRental.setStatus(RentalStatus.Cancelled);
         testCar.setStatus(CarStatus.Rented);
-        when(carRentalRepository.findById(10)).thenReturn(Optional.of(testRental));
+        when(carRentalRepository.findWithDetailsByCarRentId(10)).thenReturn(Optional.of(testRental));
 
         assertThatThrownBy(() -> rentalService.updateRentalStatus(10, "Completed"))
                 .isInstanceOf(BusinessException.class)
@@ -188,7 +188,7 @@ class RentalServiceTest {
     @Test
     @DisplayName("updateRentalStatus - Active sang Active -> Ném BusinessException")
     void testUpdateRentalStatus_ActiveToActive_ShouldThrowException() {
-        when(carRentalRepository.findById(10)).thenReturn(Optional.of(testRental));
+        when(carRentalRepository.findWithDetailsByCarRentId(10)).thenReturn(Optional.of(testRental));
 
         assertThatThrownBy(() -> rentalService.updateRentalStatus(10, "Active"))
                 .isInstanceOf(BusinessException.class);

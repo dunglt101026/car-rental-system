@@ -52,7 +52,7 @@ public class RentalService {
     }
 
     public CarRental getRentalEntity(Integer carRentId) {
-        return carRentalRepository.findById(carRentId)
+        return carRentalRepository.findWithDetailsByCarRentId(carRentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn thuê xe với mã: " + carRentId));
     }
 
