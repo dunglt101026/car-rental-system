@@ -54,11 +54,7 @@ public class AdminCarController {
         if (!model.containsAttribute("carForm")) {
             model.addAttribute("carForm", CarRequest.empty());
         }
-        model.addAttribute("producers", carService.getAllProducers());
-        model.addAttribute("statuses", CarStatus.values());
-        model.addAttribute("isEdit", false);
-        model.addAttribute("activeTab", "cars");
-        return "admin/car/form";
+        return renderForm(model, null);
     }
 
     @PostMapping("/new")
@@ -69,11 +65,7 @@ public class AdminCarController {
             Model model
     ) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("producers", carService.getAllProducers());
-            model.addAttribute("statuses", CarStatus.values());
-            model.addAttribute("isEdit", false);
-            model.addAttribute("activeTab", "cars");
-            return "admin/car/form";
+            return renderForm(model, null);
         }
 
         try {
@@ -83,26 +75,16 @@ public class AdminCarController {
             return "redirect:/admin/cars";
         } catch (BusinessException ex) {
             model.addAttribute("errorMessage", ex.getMessage());
-            model.addAttribute("producers", carService.getAllProducers());
-            model.addAttribute("statuses", CarStatus.values());
-            model.addAttribute("isEdit", false);
-            model.addAttribute("activeTab", "cars");
-            return "admin/car/form";
+            return renderForm(model, null);
         }
     }
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable("id") Integer id, Model model) {
         if (!model.containsAttribute("carForm")) {
-            CarRequest form = carService.getCarFormById(id);
-            model.addAttribute("carForm", form);
+            model.addAttribute("carForm", carService.getCarFormById(id));
         }
-        model.addAttribute("carId", id);
-        model.addAttribute("producers", carService.getAllProducers());
-        model.addAttribute("statuses", CarStatus.values());
-        model.addAttribute("isEdit", true);
-        model.addAttribute("activeTab", "cars");
-        return "admin/car/form";
+        return renderForm(model, id);
     }
 
     @PostMapping("/edit/{id}")
@@ -114,12 +96,7 @@ public class AdminCarController {
             Model model
     ) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("carId", id);
-            model.addAttribute("producers", carService.getAllProducers());
-            model.addAttribute("statuses", CarStatus.values());
-            model.addAttribute("isEdit", true);
-            model.addAttribute("activeTab", "cars");
-            return "admin/car/form";
+            return renderForm(model, id);
         }
 
         try {
@@ -129,12 +106,7 @@ public class AdminCarController {
             return "redirect:/admin/cars";
         } catch (BusinessException ex) {
             model.addAttribute("errorMessage", ex.getMessage());
-            model.addAttribute("carId", id);
-            model.addAttribute("producers", carService.getAllProducers());
-            model.addAttribute("statuses", CarStatus.values());
-            model.addAttribute("isEdit", true);
-            model.addAttribute("activeTab", "cars");
-            return "admin/car/form";
+            return renderForm(model, id);
         }
     }
 
@@ -144,5 +116,18 @@ public class AdminCarController {
         redirectAttributes.addFlashAttribute("successMessage", result.getDisplayMessage());
         return "redirect:/admin/cars";
     }
-}
 
+    /**
+     * Adds the shared form attributes. A null carId means the create form.
+     */
+    private String renderForm(Model model, Integer carId) {
+        if (carId != null) {
+            model.addAttribute("carId", carId);
+        }
+        model.addAttribute("producers", carService.getAllProducers());
+        model.addAttribute("statuses", CarStatus.values());
+        model.addAttribute("isEdit", carId != null);
+        model.addAttribute("activeTab", "cars");
+        return "admin/car/form";
+    }
+}

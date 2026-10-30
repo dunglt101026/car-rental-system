@@ -8,7 +8,6 @@ import com.hsf.asgm.common.config.AuthInterceptor;
 import com.hsf.asgm.common.exception.BusinessException;
 import com.hsf.asgm.customer.CustomerResponse;
 import com.hsf.asgm.customer.CustomerService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,12 +32,7 @@ public class RentalController {
     private final CustomerService customerService;
 
     @GetMapping
-    public String listRentals(HttpSession session, Model model) {
-        AccountResponse currentUser = (AccountResponse) session.getAttribute(AuthInterceptor.SESSION_USER);
-        if (currentUser == null) {
-            return "redirect:/login?error=login_required";
-        }
-
+    public String listRentals(@SessionAttribute(AuthInterceptor.SESSION_USER) AccountResponse currentUser, Model model) {
         CustomerResponse customer = customerService.getCustomerByAccountId(currentUser.accountId());
         List<RentalResponse> rentals = rentalService.getCustomerRentals(customer.customerId());
 
@@ -51,15 +45,10 @@ public class RentalController {
     @GetMapping("/book")
     public String showBookingForm(
             @RequestParam("carId") Integer carId,
-            HttpSession session,
+            @SessionAttribute(AuthInterceptor.SESSION_USER) AccountResponse currentUser,
             RedirectAttributes redirectAttributes,
             Model model
     ) {
-        AccountResponse currentUser = (AccountResponse) session.getAttribute(AuthInterceptor.SESSION_USER);
-        if (currentUser == null) {
-            return "redirect:/login?error=login_required";
-        }
-
         CarResponse car = carService.getCarById(carId);
         if (!CarStatus.Available.name().equalsIgnoreCase(car.status())) {
             redirectAttributes.addFlashAttribute("errorMessage", "Xe '" + car.carName() + "' hiện không khả dụng để đặt thuê.");
@@ -86,15 +75,10 @@ public class RentalController {
     public String handleBookCar(
             @Valid @ModelAttribute("rentalRequest") RentalCreateRequest request,
             BindingResult bindingResult,
-            HttpSession session,
+            @SessionAttribute(AuthInterceptor.SESSION_USER) AccountResponse currentUser,
             RedirectAttributes redirectAttributes,
             Model model
     ) {
-        AccountResponse currentUser = (AccountResponse) session.getAttribute(AuthInterceptor.SESSION_USER);
-        if (currentUser == null) {
-            return "redirect:/login?error=login_required";
-        }
-
         if (request.carIds() == null || request.carIds().isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn ít nhất một xe để đặt thuê.");
             return "redirect:/cars";
