@@ -56,7 +56,7 @@ class RentalServiceTest {
                 .carId(1)
                 .carName("Toyota Corolla")
                 .rentPrice(BigDecimal.valueOf(1000000))
-                .status(CarStatus.Rented.name())
+                .status(CarStatus.Rented)
                 .build();
 
         testCustomer = Customer.builder()
@@ -72,7 +72,7 @@ class RentalServiceTest {
                 .pickupDate(LocalDate.now())
                 .returnDate(LocalDate.now().plusDays(3))
                 .rentPrice(BigDecimal.valueOf(3000000))
-                .status(RentalStatus.Active.name())
+                .status(RentalStatus.Active)
                 .build();
     }
 
@@ -112,8 +112,8 @@ class RentalServiceTest {
 
         RentalResponse response = rentalService.updateRentalStatus(10, "Completed");
 
-        assertThat(testRental.getStatus()).isEqualTo(RentalStatus.Completed.name());
-        assertThat(testCar.getStatus()).isEqualTo(CarStatus.Available.name());
+        assertThat(testRental.getStatus()).isEqualTo(RentalStatus.Completed);
+        assertThat(testCar.getStatus()).isEqualTo(CarStatus.Available);
         verify(carRepository, times(1)).save(testCar);
         verify(carRentalRepository, times(1)).save(testRental);
     }
@@ -134,8 +134,8 @@ class RentalServiceTest {
 
         RentalResponse response = rentalService.updateRentalStatus(10, "Cancelled");
 
-        assertThat(testRental.getStatus()).isEqualTo(RentalStatus.Cancelled.name());
-        assertThat(testCar.getStatus()).isEqualTo(CarStatus.Available.name());
+        assertThat(testRental.getStatus()).isEqualTo(RentalStatus.Cancelled);
+        assertThat(testCar.getStatus()).isEqualTo(CarStatus.Available);
         verify(carRepository, times(1)).save(testCar);
         verify(carRentalRepository, times(1)).save(testRental);
     }
@@ -156,15 +156,15 @@ class RentalServiceTest {
     @Test
     @DisplayName("updateRentalStatus - Đơn Completed không thể mở lại Active -> Ném BusinessException")
     void testUpdateRentalStatus_CompletedToActive_ShouldThrowException() {
-        testRental.setStatus(RentalStatus.Completed.name());
-        testCar.setStatus(CarStatus.Rented.name()); // xe đang được thuê bởi đơn khác
+        testRental.setStatus(RentalStatus.Completed);
+        testCar.setStatus(CarStatus.Rented); // xe đang được thuê bởi đơn khác
         when(carRentalRepository.findById(10)).thenReturn(Optional.of(testRental));
 
         assertThatThrownBy(() -> rentalService.updateRentalStatus(10, "Active"))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("đã kết thúc");
 
-        assertThat(testRental.getStatus()).isEqualTo(RentalStatus.Completed.name());
+        assertThat(testRental.getStatus()).isEqualTo(RentalStatus.Completed);
         verify(carRepository, never()).save(any());
         verify(carRentalRepository, never()).save(any());
     }
@@ -172,15 +172,15 @@ class RentalServiceTest {
     @Test
     @DisplayName("updateRentalStatus - Đơn Cancelled không thể đổi sang Completed -> Ném BusinessException")
     void testUpdateRentalStatus_CancelledToCompleted_ShouldThrowException() {
-        testRental.setStatus(RentalStatus.Cancelled.name());
-        testCar.setStatus(CarStatus.Rented.name());
+        testRental.setStatus(RentalStatus.Cancelled);
+        testCar.setStatus(CarStatus.Rented);
         when(carRentalRepository.findById(10)).thenReturn(Optional.of(testRental));
 
         assertThatThrownBy(() -> rentalService.updateRentalStatus(10, "Completed"))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("đã kết thúc");
 
-        assertThat(testCar.getStatus()).isEqualTo(CarStatus.Rented.name());
+        assertThat(testCar.getStatus()).isEqualTo(CarStatus.Rented);
         verify(carRepository, never()).save(any());
         verify(carRentalRepository, never()).save(any());
     }
@@ -210,7 +210,7 @@ class RentalServiceTest {
                 .pickupDate(LocalDate.now().minusDays(2))
                 .returnDate(LocalDate.now().plusDays(1))
                 .rentPrice(BigDecimal.valueOf(2000000))
-                .status(RentalStatus.Completed.name())
+                .status(RentalStatus.Completed)
                 .build();
 
         when(carRentalRepository.findAll(any(Specification.class), any(org.springframework.data.domain.Sort.class)))
@@ -245,9 +245,9 @@ class RentalServiceTest {
     @DisplayName("bookCars - Đặt nhiều xe cùng lúc -> Mỗi xe một đơn Active, xe chuyển sang Rented")
     void testBookCars_MultipleCars_Success() {
         Car car1 = Car.builder().carId(1).carName("Toyota Corolla")
-                .rentPrice(BigDecimal.valueOf(100)).status(CarStatus.Available.name()).build();
+                .rentPrice(BigDecimal.valueOf(100)).status(CarStatus.Available).build();
         Car car2 = Car.builder().carId(2).carName("Honda City")
-                .rentPrice(BigDecimal.valueOf(50)).status(CarStatus.Available.name()).build();
+                .rentPrice(BigDecimal.valueOf(50)).status(CarStatus.Available).build();
         when(customerRepository.findById(1)).thenReturn(Optional.of(testCustomer));
         when(carRepository.findById(1)).thenReturn(Optional.of(car1));
         when(carRepository.findById(2)).thenReturn(Optional.of(car2));
@@ -263,18 +263,18 @@ class RentalServiceTest {
         assertThat(captor.getAllValues()).extracting(CarRental::getRentPrice)
                 .usingElementComparator(BigDecimal::compareTo)
                 .containsExactly(BigDecimal.valueOf(300), BigDecimal.valueOf(150));
-        assertThat(captor.getAllValues()).allMatch(r -> RentalStatus.Active.name().equals(r.getStatus()));
-        assertThat(car1.getStatus()).isEqualTo(CarStatus.Rented.name());
-        assertThat(car2.getStatus()).isEqualTo(CarStatus.Rented.name());
+        assertThat(captor.getAllValues()).allMatch(r -> r.getStatus() == RentalStatus.Active);
+        assertThat(car1.getStatus()).isEqualTo(CarStatus.Rented);
+        assertThat(car2.getStatus()).isEqualTo(CarStatus.Rented);
     }
 
     @Test
     @DisplayName("bookCars - Một xe không khả dụng -> Không đặt xe nào")
     void testBookCars_OneCarUnavailable_ShouldBookNothing() {
         Car car1 = Car.builder().carId(1).carName("Toyota Corolla")
-                .rentPrice(BigDecimal.valueOf(100)).status(CarStatus.Available.name()).build();
+                .rentPrice(BigDecimal.valueOf(100)).status(CarStatus.Available).build();
         Car car2 = Car.builder().carId(2).carName("Honda City")
-                .rentPrice(BigDecimal.valueOf(50)).status(CarStatus.Rented.name()).build();
+                .rentPrice(BigDecimal.valueOf(50)).status(CarStatus.Rented).build();
         when(customerRepository.findById(1)).thenReturn(Optional.of(testCustomer));
         when(carRepository.findById(1)).thenReturn(Optional.of(car1));
         when(carRepository.findById(2)).thenReturn(Optional.of(car2));
@@ -286,7 +286,7 @@ class RentalServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("Honda City");
 
-        assertThat(car1.getStatus()).isEqualTo(CarStatus.Available.name());
+        assertThat(car1.getStatus()).isEqualTo(CarStatus.Available);
         verify(carRentalRepository, never()).save(any());
         verify(carRepository, never()).save(any());
     }
@@ -301,7 +301,7 @@ class RentalServiceTest {
                 .pickupDate(LocalDate.now().minusDays(1))
                 .returnDate(LocalDate.now().plusDays(2))
                 .rentPrice(BigDecimal.valueOf(4000000))
-                .status(RentalStatus.Cancelled.name())
+                .status(RentalStatus.Cancelled)
                 .build();
 
         when(carRentalRepository.findAll(any(Specification.class), any(org.springframework.data.domain.Sort.class)))

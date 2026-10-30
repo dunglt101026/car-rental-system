@@ -29,7 +29,7 @@ public class ReviewService {
             throw new BusinessException("Bạn không có quyền đánh giá đơn thuê xe này.");
         }
 
-        if (!RentalStatus.Completed.name().equalsIgnoreCase(rental.getStatus())) {
+        if (rental.getStatus() != RentalStatus.Completed) {
             throw new BusinessException("Chỉ đơn thuê xe ở trạng thái 'Completed' mới có thể gửi đánh giá.");
         }
 

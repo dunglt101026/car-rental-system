@@ -88,7 +88,7 @@ public class RentalService {
                 .toList();
 
         for (Car car : cars) {
-            if (!CarStatus.Available.name().equalsIgnoreCase(car.getStatus())) {
+            if (car.getStatus() != CarStatus.Available) {
                 throw new BusinessException("Xe '" + car.getCarName() + "' hiện không khả dụng để đặt thuê (trạng thái: " + car.getStatus() + ").");
             }
         }
@@ -104,13 +104,13 @@ public class RentalService {
                     .pickupDate(request.pickupDate())
                     .returnDate(request.returnDate())
                     .rentPrice(totalRentPrice)
-                    .status(RentalStatus.Active.name())
+                    .status(RentalStatus.Active)
                     .build();
 
             CarRental savedRental = carRentalRepository.save(rental);
 
             // Update car status to Rented
-            car.setStatus(CarStatus.Rented.name());
+            car.setStatus(CarStatus.Rented);
             carRepository.save(car);
 
             log.info("Car booked successfully: rentalId={}, customerId={}, carId={}, totalPrice={}",
@@ -123,7 +123,7 @@ public class RentalService {
     @Transactional
     public RentalResponse updateRentalStatus(Integer carRentId, String newStatus) {
         CarRental rental = getRentalEntity(carRentId);
-        String oldStatus = rental.getStatus();
+        RentalStatus oldStatus = rental.getStatus();
 
         if (newStatus == null || newStatus.isBlank()) {
             throw new BusinessException("Trạng thái đơn thuê không hợp lệ: " + newStatus);
@@ -137,7 +137,7 @@ public class RentalService {
 
         // Business Rule: Completed and Cancelled are final states.
         // Only an Active rental can move, and only to Completed or Cancelled.
-        if (!RentalStatus.Active.name().equalsIgnoreCase(oldStatus)) {
+        if (oldStatus != RentalStatus.Active) {
             throw new BusinessException("Đơn thuê #" + carRentId + " đã kết thúc (" + oldStatus
                     + "), không thể thay đổi trạng thái.");
         }
@@ -147,14 +147,14 @@ public class RentalService {
 
         // Release the car back to Available status
         Car car = rental.getCar();
-        if (car != null && CarStatus.Rented.name().equalsIgnoreCase(car.getStatus())) {
-            car.setStatus(CarStatus.Available.name());
+        if (car != null && car.getStatus() == CarStatus.Rented) {
+            car.setStatus(CarStatus.Available);
             carRepository.save(car);
             log.info("Car ID {} status updated to Available because rental ID {} changed from {} to {}",
                     car.getCarId(), carRentId, oldStatus, targetStatus.name());
         }
 
-        rental.setStatus(targetStatus.name());
+        rental.setStatus(targetStatus);
         CarRental saved = carRentalRepository.save(rental);
         log.info("Updated rental ID {} status from {} to {}", carRentId, oldStatus, targetStatus.name());
         return rentalMapper.toResponse(saved);
@@ -194,17 +194,17 @@ public class RentalService {
 
         for (CarRental r : rentals) {
             // Cancelled rentals generate no revenue
-            if (r.getRentPrice() != null && !RentalStatus.Cancelled.name().equalsIgnoreCase(r.getStatus())) {
+            if (r.getRentPrice() != null && r.getStatus() != RentalStatus.Cancelled) {
                 totalRevenue = totalRevenue.add(r.getRentPrice());
-                if (RentalStatus.Completed.name().equalsIgnoreCase(r.getStatus())) {
+                if (r.getStatus() == RentalStatus.Completed) {
                     completedRevenue = completedRevenue.add(r.getRentPrice());
                 }
             }
-            if (RentalStatus.Active.name().equalsIgnoreCase(r.getStatus())) {
+            if (r.getStatus() == RentalStatus.Active) {
                 activeCount++;
-            } else if (RentalStatus.Completed.name().equalsIgnoreCase(r.getStatus())) {
+            } else if (r.getStatus() == RentalStatus.Completed) {
                 completedCount++;
-            } else if (RentalStatus.Cancelled.name().equalsIgnoreCase(r.getStatus())) {
+            } else if (r.getStatus() == RentalStatus.Cancelled) {
                 cancelledCount++;
             }
         }

@@ -55,7 +55,7 @@ class CustomerServiceTest {
                 .accountId(1)
                 .accountName("customer01")
                 .email("customer01@fucar.com")
-                .role(Role.Customer.name())
+                .role(Role.Customer)
                 .build();
 
         customer1 = Customer.builder()

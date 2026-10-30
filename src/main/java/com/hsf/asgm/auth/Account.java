@@ -31,7 +31,8 @@ public class Account implements Serializable {
     private String password;
 
     @Column(name = "role", length = 10, nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Customer customer;

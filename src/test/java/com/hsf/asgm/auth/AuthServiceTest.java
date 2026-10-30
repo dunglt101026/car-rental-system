@@ -73,7 +73,7 @@ class AuthServiceTest {
     @DisplayName("login - Đăng nhập thành công với mật khẩu BCrypt")
     void testLoginWithBcryptPassword() {
         Account account = Account.builder()
-                .accountId(1).accountName("newcustomer").role(Role.Customer.name())
+                .accountId(1).accountName("newcustomer").role(Role.Customer)
                 .password(passwordEncoder.encode("secret123"))
                 .build();
         when(accountRepository.findByAccountName("newcustomer")).thenReturn(Optional.of(account));
@@ -87,7 +87,7 @@ class AuthServiceTest {
     @DisplayName("login - Không chấp nhận mật khẩu lưu dạng plain-text")
     void testLoginRejectsPlainTextStoredPassword() {
         Account account = Account.builder()
-                .accountId(2).accountName("customer1").role(Role.Customer.name())
+                .accountId(2).accountName("customer1").role(Role.Customer)
                 .password("123456")
                 .build();
         when(accountRepository.findByAccountName("customer1")).thenReturn(Optional.of(account));
@@ -100,7 +100,7 @@ class AuthServiceTest {
     @DisplayName("login - Sai mật khẩu ném BusinessException")
     void testLoginWithWrongPassword() {
         Account account = Account.builder()
-                .accountId(1).accountName("newcustomer").role(Role.Customer.name())
+                .accountId(1).accountName("newcustomer").role(Role.Customer)
                 .password(passwordEncoder.encode("secret123"))
                 .build();
         when(accountRepository.findByAccountName("newcustomer")).thenReturn(Optional.of(account));

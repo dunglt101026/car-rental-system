@@ -56,7 +56,7 @@ public class AuthService {
                 .accountName(request.accountName().trim())
                 .email(request.email().trim())
                 .password(passwordEncoder.encode(request.password()))
-                .role(Role.Customer.name())
+                .role(Role.Customer)
                 .build();
 
         Account savedAccount = accountRepository.save(account);

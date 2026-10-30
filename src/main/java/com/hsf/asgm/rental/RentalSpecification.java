@@ -21,9 +21,7 @@ public class RentalSpecification {
 
             List<Predicate> predicates = new ArrayList<>();
 
-            if (status != null && !status.isBlank() && !"ALL".equalsIgnoreCase(status.trim())) {
-                predicates.add(cb.equal(root.get("status"), status.trim()));
-            }
+            RentalStatus.from(status).ifPresent(s -> predicates.add(cb.equal(root.get("status"), s)));
 
             if (keyword != null && !keyword.trim().isEmpty()) {
                 String pattern = "%" + keyword.trim().toLowerCase() + "%";

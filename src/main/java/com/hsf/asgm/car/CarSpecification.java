@@ -26,9 +26,7 @@ public class CarSpecification {
 
             List<Predicate> predicates = new ArrayList<>();
 
-            if (status != null && !status.isBlank() && !"ALL".equalsIgnoreCase(status.trim())) {
-                predicates.add(cb.equal(root.get("status"), status.trim()));
-            }
+            CarStatus.from(status).ifPresent(s -> predicates.add(cb.equal(root.get("status"), s)));
 
             if (producerId != null) {
                 predicates.add(cb.equal(root.get("producer").get("producerId"), producerId));

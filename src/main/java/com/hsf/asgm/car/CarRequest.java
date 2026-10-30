@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -46,6 +47,7 @@ public record CarRequest(
         BigDecimal rentPrice,
 
         @NotBlank(message = "Trạng thái xe không được để trống")
+        @Pattern(regexp = "Available|Rented|Inactive", message = "Trạng thái xe không hợp lệ")
         String status
 ) {
     public static CarRequest empty() {

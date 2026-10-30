@@ -65,7 +65,7 @@ class CarServiceTest {
                 .importDate(LocalDate.of(2023, 1, 15))
                 .producer(testProducer)
                 .rentPrice(BigDecimal.valueOf(800000))
-                .status(CarStatus.Available.name())
+                .status(CarStatus.Available)
                 .build();
     }
 
@@ -94,7 +94,7 @@ class CarServiceTest {
 
         assertThat(result.hardDeleted()).isFalse();
         assertThat(result.carId()).isEqualTo(10);
-        assertThat(testCar.getStatus()).isEqualTo(CarStatus.Inactive.name());
+        assertThat(testCar.getStatus()).isEqualTo(CarStatus.Inactive);
         verify(carRepository, times(1)).save(testCar);
         verify(carRepository, never()).delete(any(Car.class));
     }

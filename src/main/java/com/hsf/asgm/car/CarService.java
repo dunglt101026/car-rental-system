@@ -123,7 +123,7 @@ public class CarService {
 
         if (hasRentalHistory) {
             log.info("Car with ID {} has rental transactions. Soft-deleting by setting status to Inactive.", carId);
-            car.setStatus(CarStatus.Inactive.name());
+            car.setStatus(CarStatus.Inactive);
             carRepository.save(car);
             return new CarDeleteResult(false, car.getCarName(), carId);
         } else {
@@ -131,12 +131,5 @@ public class CarService {
             carRepository.delete(car);
             return new CarDeleteResult(true, car.getCarName(), carId);
         }
-    }
-
-    @Transactional
-    public void updateCarStatus(Integer carId, String status) {
-        Car car = getCarEntity(carId);
-        car.setStatus(status);
-        carRepository.save(car);
     }
 }
