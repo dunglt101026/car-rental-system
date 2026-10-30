@@ -88,7 +88,7 @@
                         <h5 class="fw-bold text-dark mb-4">Thời Gian Thuê & Chi Phí</h5>
 
                         <form th:action="@{/customer/rentals/book}" th:object="${rentalRequest}" method="post" id="bookingForm">
-                            <input type="hidden" th:field="*{carId}" />
+                            <input type="hidden" name="carIds" th:value="${car.carId}" />
 
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
@@ -110,12 +110,36 @@
                                 </div>
                             </div>
 
+                            <!-- Additional Cars -->
+                            <div class="mb-4" th:if="${!#lists.isEmpty(otherCars)}">
+                                <label class="form-label small fw-semibold">Thuê thêm xe khác cùng thời gian (tùy chọn)</label>
+                                <div class="border rounded-3 p-2" style="max-height: 220px; overflow-y: auto;">
+                                    <div class="form-check py-1" th:each="oc : ${otherCars}">
+                                        <input class="form-check-input extra-car" type="checkbox" name="carIds"
+                                               th:id="${'extraCar' + oc.carId}"
+                                               th:value="${oc.carId}"
+                                               th:attr="data-price=${oc.rentPrice}"
+                                               th:checked="${rentalRequest.carIds() != null and rentalRequest.carIds().contains(oc.carId)}">
+                                        <label class="form-check-label small d-flex justify-content-between"
+                                               th:for="${'extraCar' + oc.carId}">
+                                            <span><span th:text="${oc.carName}">Honda City</span>
+                                                <span class="text-muted" th:text="${'(' + oc.producerName + ', ' + oc.capacity + ' chỗ)'}">(Honda, 5 chỗ)</span></span>
+                                            <span class="fw-semibold" th:text="${'$' + #numbers.formatDecimal(oc.rentPrice, 1, 2) + ' / ngày'}">$50.00 / ngày</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Real-time Cost Estimation Box -->
                             <div class="p-4 bg-light rounded-3 mb-4 border">
                                 <h6 class="fw-bold text-secondary mb-3">Chi Tiết Thanh Toán Dự Kiến</h6>
                                 <div class="d-flex justify-content-between align-items-center mb-2 small">
-                                    <span>Đơn giá theo ngày:</span>
-                                    <span class="fw-semibold" th:text="${'$' + #numbers.formatDecimal(car.rentPrice, 1, 2)}">$80.00</span>
+                                    <span>Số xe thuê:</span>
+                                    <span class="fw-semibold" id="carCount">1 xe</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2 small">
+                                    <span>Tổng đơn giá theo ngày:</span>
+                                    <span class="fw-semibold" id="dailyTotal" th:text="${'$' + #numbers.formatDecimal(car.rentPrice, 1, 2)}">$80.00</span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mb-2 small">
                                     <span>Thời gian thuê:</span>
@@ -157,7 +181,24 @@
         const errorNotice = document.getElementById("dateErrorNotice");
         const submitBtn = document.getElementById("submitBtn");
         const dailyRateEl = document.getElementById("dailyRateText");
-        const dailyRate = parseFloat(dailyRateEl.getAttribute("data-price")) || 0;
+        const mainRate = parseFloat(dailyRateEl.getAttribute("data-price")) || 0;
+        const extraCars = document.querySelectorAll(".extra-car");
+        const carCountDisplay = document.getElementById("carCount");
+        const dailyTotalDisplay = document.getElementById("dailyTotal");
+
+        function currentDailyRate() {
+            let rate = mainRate;
+            let count = 1;
+            extraCars.forEach(function (cb) {
+                if (cb.checked) {
+                    rate += parseFloat(cb.getAttribute("data-price")) || 0;
+                    count++;
+                }
+            });
+            carCountDisplay.textContent = count + " xe";
+            dailyTotalDisplay.textContent = "$" + rate.toFixed(2);
+            return rate;
+        }
 
         const todayStr = new Date().toISOString().split("T")[0];
         if (!pickupInput.value) {
@@ -180,7 +221,7 @@
                     submitBtn.disabled = true;
                 } else {
                     daysDisplay.textContent = diffDays + " ngày";
-                    const total = (diffDays * dailyRate).toFixed(2);
+                    const total = (diffDays * currentDailyRate()).toFixed(2);
                     totalDisplay.textContent = "$" + total;
                     errorNotice.classList.add("d-none");
                     submitBtn.disabled = false;
@@ -201,6 +242,9 @@
         });
 
         returnInput.addEventListener("change", updateCalculation);
+        extraCars.forEach(function (cb) {
+            cb.addEventListener("change", updateCalculation);
+        });
         updateCalculation();
     });
 </script>

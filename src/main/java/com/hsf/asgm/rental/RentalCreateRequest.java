@@ -1,13 +1,15 @@
 package com.hsf.asgm.rental;
 
 import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record RentalCreateRequest(
-        @NotNull(message = "Vui lòng chọn xe")
-        Integer carId,
+        @NotEmpty(message = "Vui lòng chọn ít nhất một xe")
+        List<Integer> carIds,
 
         @NotNull(message = "Ngày nhận xe không được để trống")
         @FutureOrPresent(message = "Ngày nhận xe không thể ở quá khứ")
@@ -16,4 +18,3 @@ public record RentalCreateRequest(
         @NotNull(message = "Ngày trả xe không được để trống")
         LocalDate returnDate
 ) {}
-

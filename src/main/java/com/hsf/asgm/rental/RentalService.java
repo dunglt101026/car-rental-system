@@ -56,8 +56,15 @@ public class RentalService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn thuê xe với mã: " + carRentId));
     }
 
+    /**
+     * Books one or many cars for the same period. Each car becomes its own car_rental record.
+     * All cars must be Available, otherwise nothing is booked.
+     */
     @Transactional
-    public RentalResponse bookCar(Integer customerId, RentalCreateRequest request) {
+    public List<RentalResponse> bookCars(Integer customerId, RentalCreateRequest request) {
+        if (request.carIds() == null || request.carIds().isEmpty()) {
+            throw new BusinessException("Vui lòng chọn ít nhất một xe để đặt thuê.");
+        }
         if (request.pickupDate() == null || request.returnDate() == null) {
             throw new BusinessException("Vui lòng chọn ngày nhận xe và ngày trả xe.");
         }
@@ -73,39 +80,44 @@ public class RentalService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin khách hàng với mã: " + customerId));
 
-        Car car = carRepository.findById(request.carId())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy xe với mã: " + request.carId()));
+        // Validate every car before saving anything
+        List<Car> cars = request.carIds().stream()
+                .distinct()
+                .map(carId -> carRepository.findById(carId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy xe với mã: " + carId)))
+                .toList();
 
-        if (!CarStatus.Available.name().equalsIgnoreCase(car.getStatus())) {
-            throw new BusinessException("Xe '" + car.getCarName() + "' hiện không khả dụng để đặt thuê (trạng thái: " + car.getStatus() + ").");
+        for (Car car : cars) {
+            if (!CarStatus.Available.name().equalsIgnoreCase(car.getStatus())) {
+                throw new BusinessException("Xe '" + car.getCarName() + "' hiện không khả dụng để đặt thuê (trạng thái: " + car.getStatus() + ").");
+            }
         }
 
         long days = ChronoUnit.DAYS.between(request.pickupDate(), request.returnDate());
-        if (days < 1) {
-            days = 1;
-        }
 
-        BigDecimal totalRentPrice = car.getRentPrice().multiply(BigDecimal.valueOf(days));
+        return cars.stream().map(car -> {
+            BigDecimal totalRentPrice = car.getRentPrice().multiply(BigDecimal.valueOf(days));
 
-        CarRental rental = CarRental.builder()
-                .customer(customer)
-                .car(car)
-                .pickupDate(request.pickupDate())
-                .returnDate(request.returnDate())
-                .rentPrice(totalRentPrice)
-                .status(RentalStatus.Active.name())
-                .build();
+            CarRental rental = CarRental.builder()
+                    .customer(customer)
+                    .car(car)
+                    .pickupDate(request.pickupDate())
+                    .returnDate(request.returnDate())
+                    .rentPrice(totalRentPrice)
+                    .status(RentalStatus.Active.name())
+                    .build();
 
-        CarRental savedRental = carRentalRepository.save(rental);
+            CarRental savedRental = carRentalRepository.save(rental);
 
-        // Update car status to Rented
-        car.setStatus(CarStatus.Rented.name());
-        carRepository.save(car);
+            // Update car status to Rented
+            car.setStatus(CarStatus.Rented.name());
+            carRepository.save(car);
 
-        log.info("Car booked successfully: rentalId={}, customerId={}, carId={}, totalPrice={}",
-                savedRental.getCarRentId(), customerId, car.getCarId(), totalRentPrice);
+            log.info("Car booked successfully: rentalId={}, customerId={}, carId={}, totalPrice={}",
+                    savedRental.getCarRentId(), customerId, car.getCarId(), totalRentPrice);
 
-        return rentalMapper.toResponse(savedRental);
+            return rentalMapper.toResponse(savedRental);
+        }).toList();
     }
 
     @Transactional

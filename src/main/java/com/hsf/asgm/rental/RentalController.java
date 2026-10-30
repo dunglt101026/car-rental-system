@@ -3,6 +3,7 @@ package com.hsf.asgm.rental;
 import com.hsf.asgm.auth.AccountResponse;
 import com.hsf.asgm.car.CarResponse;
 import com.hsf.asgm.car.CarService;
+import com.hsf.asgm.car.CarStatus;
 import com.hsf.asgm.common.config.AuthInterceptor;
 import com.hsf.asgm.common.exception.BusinessException;
 import com.hsf.asgm.customer.CustomerResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/customer/rentals")
@@ -59,7 +61,7 @@ public class RentalController {
         }
 
         CarResponse car = carService.getCarById(carId);
-        if (!"Available".equalsIgnoreCase(car.status())) {
+        if (!CarStatus.Available.name().equalsIgnoreCase(car.status())) {
             redirectAttributes.addFlashAttribute("errorMessage", "Xe '" + car.carName() + "' hiện không khả dụng để đặt thuê.");
             return "redirect:/cars";
         }
@@ -68,15 +70,14 @@ public class RentalController {
 
         if (!model.containsAttribute("rentalRequest")) {
             RentalCreateRequest defaultForm = new RentalCreateRequest(
-                    carId,
+                    List.of(carId),
                     LocalDate.now(),
                     LocalDate.now().plusDays(1)
             );
             model.addAttribute("rentalRequest", defaultForm);
         }
 
-        model.addAttribute("car", car);
-        model.addAttribute("customer", customer);
+        populateBookingModel(model, car, customer);
 
         return "rental/book";
     }
@@ -94,25 +95,41 @@ public class RentalController {
             return "redirect:/login?error=login_required";
         }
 
+        if (request.carIds() == null || request.carIds().isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn ít nhất một xe để đặt thuê.");
+            return "redirect:/cars";
+        }
+
         CustomerResponse customer = customerService.getCustomerByAccountId(currentUser.accountId());
-        CarResponse car = carService.getCarById(request.carId());
+        CarResponse car = carService.getCarById(request.carIds().getFirst());
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("car", car);
-            model.addAttribute("customer", customer);
+            populateBookingModel(model, car, customer);
             return "rental/book";
         }
 
         try {
-            rentalService.bookCar(customer.customerId(), request);
-            redirectAttributes.addFlashAttribute("successMessage", "Đặt thuê xe '" + car.carName() + "' thành công!");
+            List<RentalResponse> booked = rentalService.bookCars(customer.customerId(), request);
+            String carNames = booked.stream().map(RentalResponse::carName).collect(Collectors.joining(", "));
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Đặt thuê thành công " + booked.size() + " xe: " + carNames + ".");
             return "redirect:/customer/rentals";
         } catch (BusinessException ex) {
             model.addAttribute("errorMessage", ex.getMessage());
-            model.addAttribute("car", car);
-            model.addAttribute("customer", customer);
+            populateBookingModel(model, car, customer);
             return "rental/book";
         }
+    }
+
+    private void populateBookingModel(Model model, CarResponse car, CustomerResponse customer) {
+        List<CarResponse> otherCars = carService.getAvailableCars(null, null, null, null, null)
+                .stream()
+                .filter(c -> !c.carId().equals(car.carId()))
+                .toList();
+
+        model.addAttribute("car", car);
+        model.addAttribute("otherCars", otherCars);
+        model.addAttribute("customer", customer);
     }
 }
 

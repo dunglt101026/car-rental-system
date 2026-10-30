@@ -242,6 +242,56 @@ class RentalServiceTest {
     }
 
     @Test
+    @DisplayName("bookCars - Đặt nhiều xe cùng lúc -> Mỗi xe một đơn Active, xe chuyển sang Rented")
+    void testBookCars_MultipleCars_Success() {
+        Car car1 = Car.builder().carId(1).carName("Toyota Corolla")
+                .rentPrice(BigDecimal.valueOf(100)).status(CarStatus.Available.name()).build();
+        Car car2 = Car.builder().carId(2).carName("Honda City")
+                .rentPrice(BigDecimal.valueOf(50)).status(CarStatus.Available.name()).build();
+        when(customerRepository.findById(1)).thenReturn(Optional.of(testCustomer));
+        when(carRepository.findById(1)).thenReturn(Optional.of(car1));
+        when(carRepository.findById(2)).thenReturn(Optional.of(car2));
+        when(carRentalRepository.save(any(CarRental.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        RentalCreateRequest request = new RentalCreateRequest(
+                List.of(1, 2, 1), LocalDate.now(), LocalDate.now().plusDays(3));
+        List<RentalResponse> result = rentalService.bookCars(1, request);
+
+        org.mockito.ArgumentCaptor<CarRental> captor = org.mockito.ArgumentCaptor.forClass(CarRental.class);
+        verify(carRentalRepository, times(2)).save(captor.capture());
+        assertThat(result).hasSize(2);
+        assertThat(captor.getAllValues()).extracting(CarRental::getRentPrice)
+                .usingElementComparator(BigDecimal::compareTo)
+                .containsExactly(BigDecimal.valueOf(300), BigDecimal.valueOf(150));
+        assertThat(captor.getAllValues()).allMatch(r -> RentalStatus.Active.name().equals(r.getStatus()));
+        assertThat(car1.getStatus()).isEqualTo(CarStatus.Rented.name());
+        assertThat(car2.getStatus()).isEqualTo(CarStatus.Rented.name());
+    }
+
+    @Test
+    @DisplayName("bookCars - Một xe không khả dụng -> Không đặt xe nào")
+    void testBookCars_OneCarUnavailable_ShouldBookNothing() {
+        Car car1 = Car.builder().carId(1).carName("Toyota Corolla")
+                .rentPrice(BigDecimal.valueOf(100)).status(CarStatus.Available.name()).build();
+        Car car2 = Car.builder().carId(2).carName("Honda City")
+                .rentPrice(BigDecimal.valueOf(50)).status(CarStatus.Rented.name()).build();
+        when(customerRepository.findById(1)).thenReturn(Optional.of(testCustomer));
+        when(carRepository.findById(1)).thenReturn(Optional.of(car1));
+        when(carRepository.findById(2)).thenReturn(Optional.of(car2));
+
+        RentalCreateRequest request = new RentalCreateRequest(
+                List.of(1, 2), LocalDate.now(), LocalDate.now().plusDays(1));
+
+        assertThatThrownBy(() -> rentalService.bookCars(1, request))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Honda City");
+
+        assertThat(car1.getStatus()).isEqualTo(CarStatus.Available.name());
+        verify(carRentalRepository, never()).save(any());
+        verify(carRepository, never()).save(any());
+    }
+
+    @Test
     @DisplayName("generateReport - Đơn Cancelled không được cộng vào tổng doanh thu")
     void testGenerateReport_ExcludesCancelledFromRevenue() {
         CarRental cancelled = CarRental.builder()
