@@ -110,10 +110,5 @@ public class AuthController {
         redirectAttributes.addFlashAttribute("successMessage", "Bạn đã đăng xuất khỏi hệ thống.");
         return "redirect:/login";
     }
-
-    @GetMapping("/logout")
-    public String handleGetLogout(HttpSession session, RedirectAttributes redirectAttributes) {
-        return handleLogout(session, redirectAttributes);
-    }
 }
 

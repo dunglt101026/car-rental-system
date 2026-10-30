@@ -107,7 +107,7 @@ class AdminRentalControllerTest {
         mockMvc.perform(get("/admin/rentals/10").session(createAdminSession()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin/rental/detail"))
-                .andExpect(model().attributeExists("rental", "statuses"));
+                .andExpect(model().attributeExists("rental"));
     }
 
     @Test

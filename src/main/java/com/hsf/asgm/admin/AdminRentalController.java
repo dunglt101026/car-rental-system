@@ -50,7 +50,6 @@ public class AdminRentalController {
     public String viewRentalDetail(@PathVariable("id") Integer id, Model model) {
         RentalResponse rental = rentalService.getRentalById(id);
         model.addAttribute("rental", rental);
-        model.addAttribute("statuses", RentalStatus.values());
         model.addAttribute("activeTab", "rentals");
 
         return "admin/rental/detail";

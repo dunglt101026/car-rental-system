@@ -24,8 +24,8 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
-    @GetMapping({"", "/dashboard"})
-    public String customerDashboard(HttpSession session) {
+    @GetMapping
+    public String customerRoot() {
         return "redirect:/customer/rentals";
     }
 
