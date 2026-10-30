@@ -94,7 +94,7 @@ public class RentalController {
 
         try {
             List<RentalResponse> booked = rentalService.bookCars(customer.customerId(), request);
-            String carNames = booked.stream().map(RentalResponse::carName).collect(Collectors.joining(", "));
+            String carNames = booked.stream().map(rental -> rental.carName()).collect(Collectors.joining(", "));
             redirectAttributes.addFlashAttribute("successMessage",
                     "Đặt thuê thành công " + booked.size() + " xe: " + carNames + ".");
             return "redirect:/customer/rentals";

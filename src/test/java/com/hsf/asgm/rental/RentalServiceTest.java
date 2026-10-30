@@ -260,8 +260,8 @@ class RentalServiceTest {
         org.mockito.ArgumentCaptor<CarRental> captor = org.mockito.ArgumentCaptor.forClass(CarRental.class);
         verify(carRentalRepository, times(2)).save(captor.capture());
         assertThat(result).hasSize(2);
-        assertThat(captor.getAllValues()).extracting(CarRental::getRentPrice)
-                .usingElementComparator(BigDecimal::compareTo)
+        assertThat(captor.getAllValues()).extracting(rental -> rental.getRentPrice())
+                .usingElementComparator((a, b) -> a.compareTo(b))
                 .containsExactly(BigDecimal.valueOf(300), BigDecimal.valueOf(150));
         assertThat(captor.getAllValues()).allMatch(r -> r.getStatus() == RentalStatus.Active);
         assertThat(car1.getStatus()).isEqualTo(CarStatus.Rented);

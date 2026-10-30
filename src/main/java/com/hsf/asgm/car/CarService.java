@@ -44,7 +44,7 @@ public class CarService {
         );
         return carRepository.findAll(spec)
                 .stream()
-                .map(carMapper::toResponse)
+                .map(car -> carMapper.toResponse(car))
                 .toList();
     }
 
@@ -64,7 +64,7 @@ public class CarService {
                 null,
                 keyword
         );
-        return carRepository.findAll(spec, pageable).map(carMapper::toResponse);
+        return carRepository.findAll(spec, pageable).map(car -> carMapper.toResponse(car));
     }
 
     public CarResponse getCarById(Integer carId) {
@@ -85,7 +85,7 @@ public class CarService {
     public List<CarProducerResponse> getAllProducers() {
         return carProducerRepository.findAllByOrderByProducerNameAsc()
                 .stream()
-                .map(carMapper::toProducerResponse)
+                .map(producer -> carMapper.toProducerResponse(producer))
                 .toList();
     }
 

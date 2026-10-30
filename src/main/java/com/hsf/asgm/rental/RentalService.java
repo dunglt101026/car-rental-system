@@ -36,13 +36,13 @@ public class RentalService {
     public Page<RentalResponse> getAdminRentals(String keyword, String status, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "carRentId"));
         Specification<CarRental> spec = RentalSpecification.filterRentals(keyword, status);
-        return carRentalRepository.findAll(spec, pageable).map(rentalMapper::toResponse);
+        return carRentalRepository.findAll(spec, pageable).map(rental -> rentalMapper.toResponse(rental));
     }
 
     public List<RentalResponse> getCustomerRentals(Integer customerId) {
         return carRentalRepository.findByCustomerIdWithDetails(customerId)
                 .stream()
-                .map(rentalMapper::toResponse)
+                .map(rental -> rentalMapper.toResponse(rental))
                 .toList();
     }
 
@@ -183,7 +183,7 @@ public class RentalService {
         List<CarRental> rentals = carRentalRepository.findAll(spec, sort);
 
         List<RentalResponse> rentalResponses = rentals.stream()
-                .map(rentalMapper::toResponse)
+                .map(rental -> rentalMapper.toResponse(rental))
                 .toList();
 
         BigDecimal totalRevenue = BigDecimal.ZERO;

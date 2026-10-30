@@ -29,7 +29,7 @@ public class CustomerService {
     public Page<CustomerResponse> getAdminCustomers(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "customerId"));
         Specification<Customer> spec = CustomerSpecification.filterCustomers(keyword);
-        return customerRepository.findAll(spec, pageable).map(customerMapper::toResponse);
+        return customerRepository.findAll(spec, pageable).map(customer -> customerMapper.toResponse(customer));
     }
 
     public CustomerResponse getCustomerByAccountId(Integer accountId) {
