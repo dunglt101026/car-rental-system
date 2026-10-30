@@ -1,6 +1,8 @@
 package com.hsf.asgm.auth;
 
 import com.hsf.asgm.common.exception.BusinessException;
+import com.hsf.asgm.customer.Customer;
+import com.hsf.asgm.customer.CustomerMapper;
 import com.hsf.asgm.customer.CustomerRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mapstruct.factory.Mappers;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,8 +33,11 @@ class AuthServiceTest {
     @Mock
     private CustomerRepository customerRepository;
 
-    @Mock
-    private AccountMapper accountMapper;
+    @Spy
+    private AccountMapper accountMapper = Mappers.getMapper(AccountMapper.class);
+
+    @Spy
+    private CustomerMapper customerMapper = Mappers.getMapper(CustomerMapper.class);
 
     @Spy
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -67,6 +73,35 @@ class AuthServiceTest {
 
         assertThat(storedPassword).isNotEqualTo("secret123").startsWith("$2");
         assertThat(passwordEncoder.matches("secret123", storedPassword)).isTrue();
+    }
+
+    @Test
+    @DisplayName("register - Dữ liệu được trim và map đúng sang Account (role Customer) và Customer")
+    void testRegisterMapsAccountAndCustomer() {
+        RegisterRequest request = new RegisterRequest(
+                "  newcustomer ", " newcustomer@fucar.com ", "secret123",
+                " Trần Thị B ", " 0987654321 ", LocalDate.of(1995, 3, 15),
+                " 098765432109 ", " B2-222222 ", LocalDate.of(2019, 6, 1));
+        when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        authService.register(request);
+
+        ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
+        verify(accountRepository).save(accountCaptor.capture());
+        Account account = accountCaptor.getValue();
+        assertThat(account.getAccountName()).isEqualTo("newcustomer");
+        assertThat(account.getEmail()).isEqualTo("newcustomer@fucar.com");
+        assertThat(account.getRole()).isEqualTo(Role.Customer);
+
+        ArgumentCaptor<Customer> customerCaptor = ArgumentCaptor.forClass(Customer.class);
+        verify(customerRepository).save(customerCaptor.capture());
+        Customer customer = customerCaptor.getValue();
+        assertThat(customer.getFullName()).isEqualTo("Trần Thị B");
+        assertThat(customer.getMobile()).isEqualTo("0987654321");
+        assertThat(customer.getIdentityCard()).isEqualTo("098765432109");
+        assertThat(customer.getLicenceNumber()).isEqualTo("B2-222222");
+        assertThat(customer.getBirthday()).isEqualTo(LocalDate.of(1995, 3, 15));
+        assertThat(customer.getAccount()).isSameAs(account);
     }
 
     @Test

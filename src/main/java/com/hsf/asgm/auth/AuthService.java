@@ -2,6 +2,7 @@ package com.hsf.asgm.auth;
 
 import com.hsf.asgm.common.exception.BusinessException;
 import com.hsf.asgm.customer.Customer;
+import com.hsf.asgm.customer.CustomerMapper;
 import com.hsf.asgm.customer.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ public class AuthService {
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
     private final AccountMapper accountMapper;
+    private final CustomerMapper customerMapper;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
@@ -39,38 +41,23 @@ public class AuthService {
 
     @Transactional
     public AccountResponse register(RegisterRequest request) {
-        if (accountRepository.existsByAccountName(request.accountName().trim())) {
+        if (accountRepository.existsByAccountName(request.accountName())) {
             throw new BusinessException("Tên đăng nhập '" + request.accountName() + "' đã được sử dụng.");
         }
-        if (accountRepository.existsByEmail(request.email().trim())) {
+        if (accountRepository.existsByEmail(request.email())) {
             throw new BusinessException("Email '" + request.email() + "' đã được đăng ký.");
         }
-        if (customerRepository.existsByIdentityCard(request.identityCard().trim())) {
+        if (customerRepository.existsByIdentityCard(request.identityCard())) {
             throw new BusinessException("Số CCCD/CMND '" + request.identityCard() + "' đã tồn tại trong hệ thống.");
         }
-        if (customerRepository.existsByMobile(request.mobile().trim())) {
+        if (customerRepository.existsByMobile(request.mobile())) {
             throw new BusinessException("Số điện thoại '" + request.mobile() + "' đã được đăng ký.");
         }
 
-        Account account = Account.builder()
-                .accountName(request.accountName().trim())
-                .email(request.email().trim())
-                .password(passwordEncoder.encode(request.password()))
-                .role(Role.Customer)
-                .build();
-
+        Account account = accountMapper.toCustomerAccount(request, passwordEncoder.encode(request.password()));
         Account savedAccount = accountRepository.save(account);
 
-        Customer customer = Customer.builder()
-                .fullName(request.fullName().trim())
-                .mobile(request.mobile().trim())
-                .birthday(request.birthday())
-                .identityCard(request.identityCard().trim())
-                .licenceNumber(request.licenceNumber().trim())
-                .licenceDate(request.licenceDate())
-                .account(savedAccount)
-                .build();
-
+        Customer customer = customerMapper.toEntity(request, savedAccount);
         customerRepository.save(customer);
         savedAccount.setCustomer(customer);
 

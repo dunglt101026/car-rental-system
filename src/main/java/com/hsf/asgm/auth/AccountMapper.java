@@ -10,4 +10,13 @@ public interface AccountMapper {
     @Mapping(target = "customerId", source = "customer.customerId")
     @Mapping(target = "fullName", source = "customer.fullName")
     AccountResponse toResponse(Account account);
+
+    /**
+     * Builds a new Customer-role account. The password must already be encoded.
+     */
+    @Mapping(target = "accountId", ignore = true)
+    @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "password", source = "encodedPassword")
+    @Mapping(target = "role", constant = "Customer")
+    Account toCustomerAccount(RegisterRequest request, String encodedPassword);
 }

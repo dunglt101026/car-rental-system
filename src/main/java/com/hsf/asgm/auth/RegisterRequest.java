@@ -50,4 +50,21 @@ public record RegisterRequest(
         @NotNull(message = "Ngày cấp bằng lái không được để trống")
         @Past(message = "Ngày cấp bằng lái phải trước ngày hiện tại")
         LocalDate licenceDate
-) {}
+) {
+    /**
+     * Normalizes text input once, so services and mappers receive trimmed values.
+     * The password is kept as typed.
+     */
+    public RegisterRequest {
+        accountName = trim(accountName);
+        email = trim(email);
+        fullName = trim(fullName);
+        mobile = trim(mobile);
+        identityCard = trim(identityCard);
+        licenceNumber = trim(licenceNumber);
+    }
+
+    private static String trim(String value) {
+        return value == null ? null : value.trim();
+    }
+}
