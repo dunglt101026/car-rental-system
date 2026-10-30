@@ -84,17 +84,16 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("login - Vẫn hỗ trợ mật khẩu plain-text của dữ liệu seed")
-    void testLoginWithLegacyPlainTextPassword() {
+    @DisplayName("login - Không chấp nhận mật khẩu lưu dạng plain-text")
+    void testLoginRejectsPlainTextStoredPassword() {
         Account account = Account.builder()
                 .accountId(2).accountName("customer1").role(Role.Customer.name())
                 .password("123456")
                 .build();
         when(accountRepository.findByAccountName("customer1")).thenReturn(Optional.of(account));
 
-        authService.login("customer1", "123456");
-
-        verify(accountMapper).toResponse(account);
+        assertThatThrownBy(() -> authService.login("customer1", "123456"))
+                .isInstanceOf(BusinessException.class);
     }
 
     @Test

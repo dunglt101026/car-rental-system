@@ -30,17 +30,7 @@ public class AuthService {
                 .or(() -> accountRepository.findByEmail(trimmedId))
                 .orElseThrow(() -> new BusinessException("Tên đăng nhập/email hoặc mật khẩu không chính xác."));
 
-        boolean matched = false;
-        String storedPassword = account.getPassword();
-        if (storedPassword != null) {
-            if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$") || storedPassword.startsWith("$2y$")) {
-                matched = passwordEncoder.matches(password, storedPassword);
-            } else {
-                matched = password.equals(storedPassword);
-            }
-        }
-
-        if (!matched) {
+        if (!passwordEncoder.matches(password, account.getPassword())) {
             throw new BusinessException("Tên đăng nhập/email hoặc mật khẩu không chính xác.");
         }
 
