@@ -1,7 +1,9 @@
 package com.hsf.asgm.common.exception;
 
-public class BusinessException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class BusinessException extends AppException {
     public BusinessException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 }

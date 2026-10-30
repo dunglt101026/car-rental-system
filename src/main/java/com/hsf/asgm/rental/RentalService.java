@@ -125,10 +125,13 @@ public class RentalService {
         CarRental rental = getRentalEntity(carRentId);
         String oldStatus = rental.getStatus();
 
+        if (newStatus == null || newStatus.isBlank()) {
+            throw new BusinessException("Trạng thái đơn thuê không hợp lệ: " + newStatus);
+        }
         RentalStatus targetStatus;
         try {
             targetStatus = RentalStatus.valueOf(newStatus.trim());
-        } catch (IllegalArgumentException | NullPointerException e) {
+        } catch (IllegalArgumentException e) {
             throw new BusinessException("Trạng thái đơn thuê không hợp lệ: " + newStatus);
         }
 

@@ -68,9 +68,6 @@ public class AdminRentalController {
                     "Cập nhật đơn thuê #" + id + " sang trạng thái \"" + updated.status() + "\" thành công. Trạng thái xe liên kết đã được đồng bộ!");
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
-        } catch (Exception ex) {
-            log.error("Error updating status for rental id={}: ", id, ex);
-            redirectAttributes.addFlashAttribute("errorMessage", "Không thể cập nhật trạng thái đơn thuê: " + ex.getMessage());
         }
 
         if (redirectToList) {
