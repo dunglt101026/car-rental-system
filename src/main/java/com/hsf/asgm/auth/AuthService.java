@@ -65,7 +65,7 @@ public class AuthService {
         Account account = Account.builder()
                 .accountName(request.accountName().trim())
                 .email(request.email().trim())
-                .password(request.password())
+                .password(passwordEncoder.encode(request.password()))
                 .role(Role.Customer.name())
                 .build();
 
