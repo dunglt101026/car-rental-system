@@ -70,19 +70,16 @@ public class CustomerService {
     }
 
     private CustomerResponse applyCustomerUpdate(Customer customer, CustomerProfileRequest request) {
-        // Check mobile duplicate with other customers
-        customerRepository.findByMobile(request.mobile().trim()).ifPresent(existing -> {
-            if (!existing.getCustomerId().equals(customer.getCustomerId())) {
-                throw new BusinessException("Số điện thoại '" + request.mobile().trim() + "' đã được sử dụng bởi khách hàng khác.");
-            }
-        });
+        // Check duplicates with OTHER customers (exists query stays safe even if the DB already has duplicates)
+        String mobile = request.mobile().trim();
+        if (customerRepository.existsByMobileAndCustomerIdNot(mobile, customer.getCustomerId())) {
+            throw new BusinessException("Số điện thoại '" + mobile + "' đã được sử dụng bởi khách hàng khác.");
+        }
 
-        // Check identity card duplicate with other customers
-        customerRepository.findByIdentityCard(request.identityCard().trim()).ifPresent(existing -> {
-            if (!existing.getCustomerId().equals(customer.getCustomerId())) {
-                throw new BusinessException("Số CCCD/CMND '" + request.identityCard().trim() + "' đã được sử dụng bởi khách hàng khác.");
-            }
-        });
+        String identityCard = request.identityCard().trim();
+        if (customerRepository.existsByIdentityCardAndCustomerIdNot(identityCard, customer.getCustomerId())) {
+            throw new BusinessException("Số CCCD/CMND '" + identityCard + "' đã được sử dụng bởi khách hàng khác.");
+        }
 
         customerMapper.updateEntityFromProfile(request, customer);
 

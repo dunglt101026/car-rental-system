@@ -11,8 +11,8 @@ import java.util.Optional;
 public interface CustomerRepository extends JpaRepository<Customer, Integer>, JpaSpecificationExecutor<Customer> {
     @EntityGraph(attributePaths = "account")
     Optional<Customer> findByAccount_AccountId(Integer accountId);
-    Optional<Customer> findByIdentityCard(String identityCard);
-    Optional<Customer> findByMobile(String mobile);
     boolean existsByIdentityCard(String identityCard);
     boolean existsByMobile(String mobile);
+    boolean existsByIdentityCardAndCustomerIdNot(String identityCard, Integer customerId);
+    boolean existsByMobileAndCustomerIdNot(String mobile, Integer customerId);
 }

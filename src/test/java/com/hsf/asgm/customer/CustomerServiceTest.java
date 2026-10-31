@@ -138,8 +138,6 @@ class CustomerServiceTest {
         );
 
         when(customerRepository.findById(1)).thenReturn(Optional.of(customer1));
-        when(customerRepository.findByMobile("0912345678")).thenReturn(Optional.of(customer1));
-        when(customerRepository.findByIdentityCard("012345678901")).thenReturn(Optional.of(customer1));
         doAnswer(invocation -> {
             customer1.setFullName(request.fullName());
             customer1.setLicenceNumber(request.licenceNumber());
@@ -174,7 +172,7 @@ class CustomerServiceTest {
         );
 
         when(customerRepository.findById(1)).thenReturn(Optional.of(customer1));
-        when(customerRepository.findByMobile("0987654321")).thenReturn(Optional.of(customer2));
+        when(customerRepository.existsByMobileAndCustomerIdNot("0987654321", 1)).thenReturn(true);
 
         assertThatThrownBy(() -> customerService.updateCustomer(1, request))
                 .isInstanceOf(BusinessException.class)
@@ -196,8 +194,7 @@ class CustomerServiceTest {
         );
 
         when(customerRepository.findById(1)).thenReturn(Optional.of(customer1));
-        when(customerRepository.findByMobile("0912345678")).thenReturn(Optional.of(customer1));
-        when(customerRepository.findByIdentityCard("098765432109")).thenReturn(Optional.of(customer2));
+        when(customerRepository.existsByIdentityCardAndCustomerIdNot("098765432109", 1)).thenReturn(true);
 
         assertThatThrownBy(() -> customerService.updateCustomer(1, request))
                 .isInstanceOf(BusinessException.class)
