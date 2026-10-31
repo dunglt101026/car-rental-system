@@ -43,7 +43,7 @@ public class CarRental implements Serializable {
     private BigDecimal rentPrice;
 
     @Column(name = "status", length = 10, nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = RentalStatusConverter.class)
     private RentalStatus status;
 
     @OneToOne(mappedBy = "carRental", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

@@ -51,7 +51,7 @@ public class Car implements Serializable {
     private BigDecimal rentPrice;
 
     @Column(name = "status", length = 10, nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = CarStatusConverter.class)
     private CarStatus status;
 
     @OneToMany(mappedBy = "car", fetch = FetchType.LAZY)
