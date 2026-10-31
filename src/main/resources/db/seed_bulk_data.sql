@@ -81,7 +81,7 @@ WHILE @i <= 30
 BEGIN
     INSERT INTO [dbo].[car] ([car_name], [car_model_year], [color], [capacity], [description], [import_date], [producer_id], [rent_price], [status])
     SELECT m.name + N' (BK-' + RIGHT('0' + CAST(@i AS VARCHAR(2)), 2) + N')',
-           2020 + @i % 5,
+           YEAR(DATEADD(DAY, @i * 37, '2021-01-01')) - @i % 2,
            (SELECT v FROM @Color WHERE n = @i % 2),
            m.capacity,
            m.descr,

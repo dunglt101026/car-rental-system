@@ -154,7 +154,7 @@ class AdminCarControllerTest {
     void testCreateCar_Success_ShouldRedirect() throws Exception {
         CarResponse created = new CarResponse(
                 10, "Mazda CX-5", 2023, "Đỏ", 5, "SUV thể thao",
-                LocalDate.now(), 1, "Mazda", BigDecimal.valueOf(1100000), "Available"
+                LocalDate.now(), 1, "Mazda", BigDecimal.valueOf(70), "Available"
         );
         when(carService.createCar(any(CarRequest.class))).thenReturn(created);
 
@@ -165,7 +165,7 @@ class AdminCarControllerTest {
                         .param("carModelYear", "2023")
                         .param("color", "Đỏ")
                         .param("capacity", "5")
-                        .param("rentPrice", "1100000")
+                        .param("rentPrice", "70")
                         .param("importDate", "2023-05-10")
                         .param("status", "Available")
                         .param("description", "SUV thể thao hiện đại"))
