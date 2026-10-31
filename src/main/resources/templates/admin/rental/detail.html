@@ -120,17 +120,22 @@
 
                 <form th:if="${rental.status == 'Active'}"
                       th:action="@{/admin/rentals/{id}/status(id=${rental.carRentId})}" method="post">
-                    <div class="mb-3">
-                        <label for="statusSelect" class="form-label small fw-semibold">Trạng thái mới</label>
-                        <select class="form-select" id="statusSelect" name="status">
-                            <option value="Completed">Completed (Hoàn thành)</option>
-                            <option value="Cancelled">Cancelled (Đã hủy)</option>
-                        </select>
-                    </div>
+                    <th:block th:with="pickedUp=${!rental.pickupDate.isAfter(#temporals.createToday())}">
+                        <div class="mb-3">
+                            <label for="statusSelect" class="form-label small fw-semibold">Trạng thái mới</label>
+                            <select class="form-select" id="statusSelect" name="status">
+                                <option value="Completed" th:if="${pickedUp}">Completed - Khách đã trả xe</option>
+                                <option value="Cancelled">Cancelled - Hủy đơn</option>
+                            </select>
+                        </div>
 
-                    <div class="alert alert-info small py-2 px-3 mb-3">
-                        <strong>Quy tắc hệ thống:</strong> Khi chuyển đơn sang <code>Completed</code> hoặc <code>Cancelled</code>, xe sẽ tự động chuyển về trạng thái <strong>Available (Có sẵn)</strong>.
-                    </div>
+                        <div class="alert alert-info small py-2 px-3 mb-3">
+                            <div><strong>Completed:</strong> khách đã mang xe đến trả, nhân viên kiểm tra xe xong thì xác nhận.</div>
+                            <div><strong>Cancelled:</strong> khách không thuê nữa; đơn hủy không tính doanh thu.</div>
+                            <div class="mt-1">Cả hai trường hợp xe đều chuyển về <strong>Available (Có sẵn)</strong>.</div>
+                            <div class="mt-1" th:if="${!pickedUp}">Chưa đến ngày nhận xe nên chưa thể xác nhận trả xe.</div>
+                        </div>
+                    </th:block>
 
                     <button type="submit" class="btn btn-primary w-100 fw-semibold"
                             onclick="return confirm('Bạn có chắc chắn muốn lưu thay đổi trạng thái cho đơn thuê này?');">

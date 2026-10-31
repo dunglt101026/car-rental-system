@@ -15,9 +15,6 @@
                 <h2 class="fw-bold text-dark mb-1">Quản Lý Giao Dịch Thuê Xe</h2>
                 <p class="text-muted mb-0">Theo dõi toàn bộ đơn đặt thuê xe của khách hàng, kiểm soát tiến độ và trạng thái xe.</p>
             </div>
-            <div>
-                <span class="badge bg-primary px-3 py-2 fs-6" th:text="${totalElements} + ' giao dịch'">0 giao dịch</span>
-            </div>
         </div>
     </div>
 
@@ -25,15 +22,15 @@
     <div class="card card-modern p-4 mb-4">
         <h5 class="fw-bold mb-3 text-secondary">Bộ lọc tìm kiếm giao dịch</h5>
         <form th:action="@{/admin/rentals}" method="get" class="row g-3 align-items-end">
-            <div class="col-md-5">
+            <div class="col-md">
                 <label for="keyword" class="form-label small fw-semibold">Từ khóa tra cứu</label>
-                <input type="text" class="form-control form-control-sm" id="keyword" name="keyword"
+                <input type="text" class="form-control" id="keyword" name="keyword"
                        th:value="${keyword}" placeholder="Tìm theo tên khách hàng, SĐT hoặc tên xe...">
             </div>
 
             <div class="col-md-4">
                 <label for="status" class="form-label small fw-semibold">Trạng thái đơn thuê</label>
-                <select class="form-select form-select-sm" id="status" name="status">
+                <select class="form-select" id="status" name="status">
                     <option value="">-- Tất cả trạng thái --</option>
                     <option th:each="st : ${statuses}"
                             th:value="${st.name()}"
@@ -44,11 +41,11 @@
                 </select>
             </div>
 
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">
+            <div class="col-md-auto d-flex gap-2">
+                <button type="submit" class="btn btn-primary fw-semibold text-nowrap px-4">
                     Lọc dữ liệu
                 </button>
-                <a th:href="@{/admin/rentals}" class="btn btn-outline-secondary btn-sm px-3" title="Đặt lại bộ lọc">
+                <a th:href="@{/admin/rentals}" class="btn btn-outline-secondary text-nowrap" title="Đặt lại bộ lọc">
                     Đặt lại
                 </a>
             </div>
@@ -132,20 +129,22 @@
 
                                 <!-- Quick actions for Active orders -->
                                 <th:block th:if="${r.status == 'Active'}">
-                                    <form th:action="@{/admin/rentals/{id}/status(id=${r.carRentId})}" method="post" class="d-inline"
-                                          onsubmit="return confirm('Xác nhận HOÀN THÀNH đơn thuê này? Xe sẽ tự động được chuyển về trạng thái Có sẵn (Available).');">
+                                    <!-- The car can only be returned once the pickup date has come -->
+                                    <form th:if="${!r.pickupDate.isAfter(#temporals.createToday())}"
+                                          th:action="@{/admin/rentals/{id}/status(id=${r.carRentId})}" method="post" class="d-inline"
+                                          onsubmit="return confirm('Xác nhận khách ĐÃ TRẢ XE và hoàn thành đơn này? Xe sẽ được chuyển về trạng thái Có sẵn (Available).');">
                                         <input type="hidden" name="status" value="Completed">
                                         <input type="hidden" name="redirectToList" value="true">
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Hoàn thành đơn">
-                                            Trả xe
+                                        <button type="submit" class="btn btn-sm btn-outline-success text-nowrap" title="Khách đã mang xe trả, hoàn thành đơn">
+                                            Xác nhận trả xe
                                         </button>
                                     </form>
                                     <form th:action="@{/admin/rentals/{id}/status(id=${r.carRentId})}" method="post" class="d-inline"
-                                          onsubmit="return confirm('Xác nhận HỦY đơn thuê này? Xe sẽ tự động được chuyển về trạng thái Có sẵn (Available).');">
+                                          onsubmit="return confirm('Xác nhận HỦY đơn thuê này? Đơn hủy không tính doanh thu, xe sẽ được chuyển về trạng thái Có sẵn (Available).');">
                                         <input type="hidden" name="status" value="Cancelled">
                                         <input type="hidden" name="redirectToList" value="true">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Hủy đơn thuê">
-                                            Hủy
+                                        <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap" title="Khách không thuê nữa, hủy đơn">
+                                            Hủy đơn
                                         </button>
                                     </form>
                                 </th:block>

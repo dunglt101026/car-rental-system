@@ -193,6 +193,11 @@ public class RentalServiceImpl implements RentalService {
         if (targetStatus == RentalStatus.Active) {
             throw new BusinessException("Đơn thuê #" + carRentId + " đang ở trạng thái Active.");
         }
+        // A car cannot be returned before it has been picked up; such a booking can only be cancelled
+        if (targetStatus == RentalStatus.Completed && rental.getPickupDate().isAfter(LocalDate.now())) {
+            throw new BusinessException("Đơn thuê #" + carRentId + " chưa đến ngày nhận xe nên chưa thể xác nhận trả xe."
+                    + " Nếu khách không thuê nữa, hãy hủy đơn.");
+        }
 
         // Release the car back to Available status
         Car car = rental.getCar();

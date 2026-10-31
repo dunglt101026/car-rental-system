@@ -295,5 +295,19 @@ class RentalServiceTest {
         verify(carRepository, never()).findById(any());
     }
 
-}
 
+    @Test
+    @DisplayName("updateRentalStatus - Chưa đến ngày nhận xe -> Không được xác nhận trả xe, chỉ được hủy")
+    void testUpdateRentalStatus_CompleteBeforePickup_ShouldThrowException() {
+        testRental.setPickupDate(LocalDate.now().plusDays(2));
+        testRental.setReturnDate(LocalDate.now().plusDays(4));
+        when(carRentalRepository.findWithDetailsByCarRentId(10)).thenReturn(Optional.of(testRental));
+
+        assertThatThrownBy(() -> rentalService.updateRentalStatus(10, "Completed"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("chưa đến ngày nhận xe");
+
+        assertThat(testRental.getStatus()).isEqualTo(RentalStatus.Active);
+        verify(carRentalRepository, never()).save(any());
+    }
+}
