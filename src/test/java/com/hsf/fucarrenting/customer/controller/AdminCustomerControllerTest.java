@@ -1,6 +1,5 @@
-package com.hsf.fucarrenting.admin;
+package com.hsf.fucarrenting.customer.controller;
 
-import com.hsf.fucarrenting.customer.controller.AdminCustomerController;
 import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import com.hsf.fucarrenting.auth.service.AuthService;
 import com.hsf.fucarrenting.auth.dto.RegisterRequest;

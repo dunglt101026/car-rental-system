@@ -1,4 +1,4 @@
-package com.hsf.fucarrenting.report;
+package com.hsf.fucarrenting.report.service;
 
 import com.hsf.fucarrenting.car.entity.Car;
 import com.hsf.fucarrenting.car.entity.CarStatus;
@@ -9,11 +9,11 @@ import com.hsf.fucarrenting.rental.mapper.RentalMapper;
 import com.hsf.fucarrenting.rental.dto.RentalResponse;
 import com.hsf.fucarrenting.rental.entity.RentalStatus;
 import com.hsf.fucarrenting.report.dto.RentalReportResponse;
-import com.hsf.fucarrenting.report.service.ReportServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -85,7 +85,7 @@ class ReportServiceTest {
                 .status(RentalStatus.Completed)
                 .build();
 
-        when(carRentalRepository.findAll(any(Specification.class), any(org.springframework.data.domain.Sort.class)))
+        when(carRentalRepository.findAll(ArgumentMatchers.<Specification<CarRental>>any(), any(org.springframework.data.domain.Sort.class)))
                 .thenReturn(List.of(testRental, rental2));
 
         RentalResponse resp1 = new RentalResponse(
@@ -126,7 +126,7 @@ class ReportServiceTest {
                 .status(RentalStatus.Cancelled)
                 .build();
 
-        when(carRentalRepository.findAll(any(Specification.class), any(org.springframework.data.domain.Sort.class)))
+        when(carRentalRepository.findAll(ArgumentMatchers.<Specification<CarRental>>any(), any(org.springframework.data.domain.Sort.class)))
                 .thenReturn(List.of(testRental, cancelled));
 
         RentalReportResponse report = reportService.generateReport(null, null, "revenue");

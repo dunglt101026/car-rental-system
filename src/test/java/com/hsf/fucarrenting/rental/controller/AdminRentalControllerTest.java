@@ -1,6 +1,5 @@
-package com.hsf.fucarrenting.admin;
+package com.hsf.fucarrenting.rental.controller;
 
-import com.hsf.fucarrenting.rental.controller.AdminRentalController;
 import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
 import com.hsf.fucarrenting.rental.dto.RentalResponse;

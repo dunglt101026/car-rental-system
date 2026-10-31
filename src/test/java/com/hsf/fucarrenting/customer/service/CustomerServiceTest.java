@@ -1,4 +1,4 @@
-package com.hsf.fucarrenting.customer;
+package com.hsf.fucarrenting.customer.service;
 
 import com.hsf.fucarrenting.auth.entity.Account;
 import com.hsf.fucarrenting.auth.repository.AccountRepository;
@@ -8,7 +8,6 @@ import com.hsf.fucarrenting.customer.dto.CustomerResponse;
 import com.hsf.fucarrenting.customer.entity.Customer;
 import com.hsf.fucarrenting.customer.mapper.CustomerMapper;
 import com.hsf.fucarrenting.customer.repository.CustomerRepository;
-import com.hsf.fucarrenting.customer.service.CustomerServiceImpl;
 import com.hsf.fucarrenting.rental.repository.CarRentalRepository;
 import com.hsf.fucarrenting.common.exception.BusinessException;
 import com.hsf.fucarrenting.common.exception.ResourceNotFoundException;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -52,7 +52,6 @@ class CustomerServiceTest {
     private CustomerServiceImpl customerService;
 
     private Customer customer1;
-    private Customer customer2;
     private Account account1;
 
     @BeforeEach
@@ -75,22 +74,13 @@ class CustomerServiceTest {
                 .account(account1)
                 .build();
 
-        customer2 = Customer.builder()
-                .customerId(2)
-                .fullName("Trần Thị B")
-                .mobile("0987654321")
-                .birthday(LocalDate.of(1995, 8, 20))
-                .identityCard("098765432109")
-                .licenceNumber("B2-222222")
-                .licenceDate(LocalDate.of(2020, 8, 20))
-                .build();
     }
 
     @Test
     @DisplayName("getAdminCustomers - Tìm kiếm và phân trang khách hàng thành công")
     void testGetAdminCustomers_Success() {
         Page<Customer> page = new PageImpl<>(List.of(customer1));
-        when(customerRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        when(customerRepository.findAll(ArgumentMatchers.<Specification<Customer>>any(), any(Pageable.class))).thenReturn(page);
 
         CustomerResponse mockResponse = new CustomerResponse(
                 1, "Nguyễn Văn A", "0912345678", LocalDate.of(1990, 5, 10),

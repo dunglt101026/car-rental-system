@@ -1,4 +1,4 @@
-package com.hsf.fucarrenting.rental;
+package com.hsf.fucarrenting.rental.service;
 
 import com.hsf.fucarrenting.car.entity.Car;
 import com.hsf.fucarrenting.car.repository.CarRepository;
@@ -12,11 +12,11 @@ import com.hsf.fucarrenting.rental.entity.CarRental;
 import com.hsf.fucarrenting.rental.entity.RentalStatus;
 import com.hsf.fucarrenting.rental.mapper.RentalMapper;
 import com.hsf.fucarrenting.rental.repository.CarRentalRepository;
-import com.hsf.fucarrenting.rental.service.RentalServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -87,7 +87,7 @@ class RentalServiceTest {
     @DisplayName("getAdminRentals - Phân trang và tìm kiếm đơn thuê thành công")
     void testGetAdminRentals_Success() {
         Page<CarRental> page = new PageImpl<>(List.of(testRental));
-        when(carRentalRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        when(carRentalRepository.findAll(ArgumentMatchers.<Specification<CarRental>>any(), any(Pageable.class))).thenReturn(page);
 
         RentalResponse mockResponse = new RentalResponse(
                 10, 1, "Nguyễn Văn A", "0912345678", "a@test.com",
@@ -119,6 +119,8 @@ class RentalServiceTest {
 
         RentalResponse response = rentalService.updateRentalStatus(10, "Completed");
 
+        assertThat(response.status()).isEqualTo("Completed");
+
         assertThat(testRental.getStatus()).isEqualTo(RentalStatus.Completed);
         assertThat(testCar.getStatus()).isEqualTo(CarStatus.Available);
         verify(carRepository, times(1)).save(testCar);
@@ -140,6 +142,8 @@ class RentalServiceTest {
         when(rentalMapper.toResponse(any(CarRental.class))).thenReturn(mockResponse);
 
         RentalResponse response = rentalService.updateRentalStatus(10, "Cancelled");
+
+        assertThat(response.status()).isEqualTo("Cancelled");
 
         assertThat(testRental.getStatus()).isEqualTo(RentalStatus.Cancelled);
         assertThat(testCar.getStatus()).isEqualTo(CarStatus.Available);

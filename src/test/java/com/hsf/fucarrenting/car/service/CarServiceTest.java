@@ -1,4 +1,4 @@
-package com.hsf.fucarrenting.car;
+package com.hsf.fucarrenting.car.service;
 
 import com.hsf.fucarrenting.car.dto.CarDeleteResult;
 import com.hsf.fucarrenting.car.dto.CarRequest;
@@ -9,7 +9,6 @@ import com.hsf.fucarrenting.car.entity.CarStatus;
 import com.hsf.fucarrenting.car.mapper.CarMapper;
 import com.hsf.fucarrenting.car.repository.CarProducerRepository;
 import com.hsf.fucarrenting.car.repository.CarRepository;
-import com.hsf.fucarrenting.car.service.CarServiceImpl;
 import com.hsf.fucarrenting.common.exception.BusinessException;
 import com.hsf.fucarrenting.common.exception.ResourceNotFoundException;
 import com.hsf.fucarrenting.rental.repository.CarRentalRepository;
@@ -18,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -213,7 +213,7 @@ class CarServiceTest {
     @DisplayName("getAdminCars - Lấy danh sách phân trang thành công")
     void testGetAdminCars_Success() {
         Page<Car> carPage = new PageImpl<>(List.of(testCar));
-        when(carRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(carPage);
+        when(carRepository.findAll(ArgumentMatchers.<Specification<Car>>any(), any(Pageable.class))).thenReturn(carPage);
 
         CarResponse mockResponse = new CarResponse(
                 10, "Toyota Vios 1.5G", 2023, "Trắng", 5, "Xe gia đình",

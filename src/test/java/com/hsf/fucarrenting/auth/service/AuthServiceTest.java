@@ -1,11 +1,10 @@
-package com.hsf.fucarrenting.auth;
+package com.hsf.fucarrenting.auth.service;
 
 import com.hsf.fucarrenting.auth.dto.RegisterRequest;
 import com.hsf.fucarrenting.auth.entity.Account;
 import com.hsf.fucarrenting.auth.entity.Role;
 import com.hsf.fucarrenting.auth.mapper.AccountMapper;
 import com.hsf.fucarrenting.auth.repository.AccountRepository;
-import com.hsf.fucarrenting.auth.service.AuthServiceImpl;
 import com.hsf.fucarrenting.common.exception.BusinessException;
 import com.hsf.fucarrenting.customer.entity.Customer;
 import com.hsf.fucarrenting.customer.mapper.CustomerMapper;
