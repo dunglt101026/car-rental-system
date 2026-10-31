@@ -2,8 +2,8 @@ package com.hsf.fucarrenting.admin;
 
 import com.hsf.fucarrenting.auth.AccountResponse;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
-import com.hsf.fucarrenting.rental.RentalReportResponse;
-import com.hsf.fucarrenting.rental.RentalService;
+import com.hsf.fucarrenting.report.RentalReportResponse;
+import com.hsf.fucarrenting.report.ReportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class AdminReportControllerTest {
     private MockMvc mockMvc;
 
     @Mock
-    private RentalService rentalService;
+    private ReportService reportService;
 
     @InjectMocks
     private AdminReportController adminReportController;
@@ -88,7 +88,7 @@ class AdminReportControllerTest {
                 0,
                 List.of()
         );
-        when(rentalService.generateReport(any(), any(), anyString())).thenReturn(mockReport);
+        when(reportService.generateReport(any(), any(), anyString())).thenReturn(mockReport);
 
         mockMvc.perform(get("/admin/reports").session(createAdminSession()))
                 .andExpect(status().isOk())

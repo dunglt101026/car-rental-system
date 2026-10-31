@@ -1,7 +1,7 @@
 package com.hsf.fucarrenting.admin;
 
-import com.hsf.fucarrenting.rental.RentalReportResponse;
-import com.hsf.fucarrenting.rental.RentalService;
+import com.hsf.fucarrenting.report.RentalReportResponse;
+import com.hsf.fucarrenting.report.ReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @Slf4j
 public class AdminReportController {
 
-    private final RentalService rentalService;
+    private final ReportService reportService;
 
     @GetMapping
     public String showReportPage(
@@ -30,7 +30,7 @@ public class AdminReportController {
             @RequestParam(name = "sortBy", defaultValue = "date") String sortBy,
             Model model
     ) {
-        RentalReportResponse report = rentalService.generateReport(startDate, endDate, sortBy);
+        RentalReportResponse report = reportService.generateReport(startDate, endDate, sortBy);
 
         model.addAttribute("report", report);
         model.addAttribute("startDate", report.startDate());
