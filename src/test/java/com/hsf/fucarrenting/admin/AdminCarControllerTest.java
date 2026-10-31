@@ -1,6 +1,6 @@
 package com.hsf.fucarrenting.admin;
 
-import com.hsf.fucarrenting.auth.AccountResponse;
+import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import com.hsf.fucarrenting.car.controller.AdminCarController;
 import com.hsf.fucarrenting.car.dto.CarDeleteResult;
 import com.hsf.fucarrenting.car.dto.CarRequest;

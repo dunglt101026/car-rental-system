@@ -1,6 +1,6 @@
 package com.hsf.fucarrenting.common.config;
 
-import com.hsf.fucarrenting.auth.AccountResponse;
+import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;

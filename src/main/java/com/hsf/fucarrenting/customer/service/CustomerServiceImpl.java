@@ -1,7 +1,7 @@
 package com.hsf.fucarrenting.customer.service;
 
-import com.hsf.fucarrenting.auth.Account;
-import com.hsf.fucarrenting.auth.AccountRepository;
+import com.hsf.fucarrenting.auth.entity.Account;
+import com.hsf.fucarrenting.auth.repository.AccountRepository;
 import com.hsf.fucarrenting.common.exception.BusinessException;
 import com.hsf.fucarrenting.common.exception.ResourceNotFoundException;
 import com.hsf.fucarrenting.customer.entity.Customer;

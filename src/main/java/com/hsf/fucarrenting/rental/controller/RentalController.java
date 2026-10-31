@@ -1,6 +1,6 @@
 package com.hsf.fucarrenting.rental.controller;
 
-import com.hsf.fucarrenting.auth.AccountResponse;
+import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import com.hsf.fucarrenting.car.dto.CarResponse;
 import com.hsf.fucarrenting.car.service.CarServiceImpl;
 import com.hsf.fucarrenting.car.entity.CarStatus;

@@ -1,6 +1,6 @@
 package com.hsf.fucarrenting.common.exception;
 
-import com.hsf.fucarrenting.auth.AccountResponse;
+import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,7 +1,7 @@
 package com.hsf.fucarrenting.common.config;
 
-import com.hsf.fucarrenting.auth.AccountResponse;
-import com.hsf.fucarrenting.auth.Role;
+import com.hsf.fucarrenting.auth.dto.AccountResponse;
+import com.hsf.fucarrenting.auth.entity.Role;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;

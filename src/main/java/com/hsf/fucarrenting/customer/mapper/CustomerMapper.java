@@ -1,7 +1,7 @@
 package com.hsf.fucarrenting.customer.mapper;
 
-import com.hsf.fucarrenting.auth.Account;
-import com.hsf.fucarrenting.auth.RegisterRequest;
+import com.hsf.fucarrenting.auth.entity.Account;
+import com.hsf.fucarrenting.auth.dto.RegisterRequest;
 import com.hsf.fucarrenting.customer.entity.Customer;
 import com.hsf.fucarrenting.customer.dto.CustomerProfileRequest;
 import com.hsf.fucarrenting.customer.dto.CustomerResponse;

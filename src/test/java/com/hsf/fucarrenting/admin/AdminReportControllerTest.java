@@ -1,10 +1,10 @@
 package com.hsf.fucarrenting.admin;
 
-import com.hsf.fucarrenting.admin.controller.AdminReportController;
-import com.hsf.fucarrenting.auth.AccountResponse;
+import com.hsf.fucarrenting.report.controller.AdminReportController;
+import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
-import com.hsf.fucarrenting.report.RentalReportResponse;
-import com.hsf.fucarrenting.report.ReportService;
+import com.hsf.fucarrenting.report.dto.RentalReportResponse;
+import com.hsf.fucarrenting.report.service.ReportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

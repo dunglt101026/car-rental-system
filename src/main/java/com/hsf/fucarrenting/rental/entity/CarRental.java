@@ -2,7 +2,7 @@ package com.hsf.fucarrenting.rental.entity;
 
 import com.hsf.fucarrenting.car.entity.Car;
 import com.hsf.fucarrenting.customer.entity.Customer;
-import com.hsf.fucarrenting.review.Review;
+import com.hsf.fucarrenting.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.*;
 

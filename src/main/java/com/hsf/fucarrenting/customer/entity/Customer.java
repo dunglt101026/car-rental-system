@@ -1,6 +1,6 @@
 package com.hsf.fucarrenting.customer.entity;
 
-import com.hsf.fucarrenting.auth.Account;
+import com.hsf.fucarrenting.auth.entity.Account;
 import com.hsf.fucarrenting.rental.entity.CarRental;
 import jakarta.persistence.*;
 import lombok.*;

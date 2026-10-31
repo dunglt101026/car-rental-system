@@ -1,9 +1,9 @@
 package com.hsf.fucarrenting.admin;
 
-import com.hsf.fucarrenting.admin.controller.AdminCustomerController;
-import com.hsf.fucarrenting.auth.AccountResponse;
-import com.hsf.fucarrenting.auth.AuthService;
-import com.hsf.fucarrenting.auth.RegisterRequest;
+import com.hsf.fucarrenting.customer.controller.AdminCustomerController;
+import com.hsf.fucarrenting.auth.dto.AccountResponse;
+import com.hsf.fucarrenting.auth.service.AuthService;
+import com.hsf.fucarrenting.auth.dto.RegisterRequest;
 import com.hsf.fucarrenting.common.exception.BusinessException;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
 import com.hsf.fucarrenting.customer.dto.CustomerProfileRequest;

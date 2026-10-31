@@ -1,6 +1,6 @@
 package com.hsf.fucarrenting.customer.controller;
 
-import com.hsf.fucarrenting.auth.AccountResponse;
+import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
 import com.hsf.fucarrenting.common.exception.BusinessException;
 import com.hsf.fucarrenting.customer.service.CustomerService;

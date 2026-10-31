@@ -1,8 +1,8 @@
 package com.hsf.fucarrenting.customer;
 
-import com.hsf.fucarrenting.auth.Account;
-import com.hsf.fucarrenting.auth.AccountRepository;
-import com.hsf.fucarrenting.auth.Role;
+import com.hsf.fucarrenting.auth.entity.Account;
+import com.hsf.fucarrenting.auth.repository.AccountRepository;
+import com.hsf.fucarrenting.auth.entity.Role;
 import com.hsf.fucarrenting.customer.dto.CustomerProfileRequest;
 import com.hsf.fucarrenting.customer.dto.CustomerResponse;
 import com.hsf.fucarrenting.customer.entity.Customer;

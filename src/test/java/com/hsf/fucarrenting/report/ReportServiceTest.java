@@ -8,6 +8,8 @@ import com.hsf.fucarrenting.rental.repository.CarRentalRepository;
 import com.hsf.fucarrenting.rental.mapper.RentalMapper;
 import com.hsf.fucarrenting.rental.dto.RentalResponse;
 import com.hsf.fucarrenting.rental.entity.RentalStatus;
+import com.hsf.fucarrenting.report.dto.RentalReportResponse;
+import com.hsf.fucarrenting.report.service.ReportServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package com.hsf.fucarrenting.admin;
 
-import com.hsf.fucarrenting.admin.controller.AdminRentalController;
-import com.hsf.fucarrenting.auth.AccountResponse;
+import com.hsf.fucarrenting.rental.controller.AdminRentalController;
+import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
 import com.hsf.fucarrenting.rental.dto.RentalResponse;
 import com.hsf.fucarrenting.rental.service.RentalService;
