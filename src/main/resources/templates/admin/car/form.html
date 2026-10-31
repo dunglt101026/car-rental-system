@@ -95,7 +95,7 @@
                     <label for="rentPrice" class="form-label small fw-semibold">
                         Giá thuê / ngày ($) <span class="text-danger">*</span>
                     </label>
-                    <input type="number" step="0.01" min="0.01" class="form-control" id="rentPrice" th:field="*{rentPrice}"
+                    <input type="number" step="1" min="1" class="form-control" id="rentPrice" th:field="*{rentPrice}"
                            th:classappend="${#fields.hasErrors('rentPrice')} ? 'is-invalid' : ''"
                            placeholder="Ví dụ: 1500000" required>
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('rentPrice')}" th:errors="*{rentPrice}"></div>

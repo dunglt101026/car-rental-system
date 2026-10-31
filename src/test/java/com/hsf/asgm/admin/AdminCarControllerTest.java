@@ -21,7 +21,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -121,6 +121,29 @@ class AdminCarControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin/car/form"))
                 .andExpect(model().hasErrors());
+    }
+
+    @Test
+    @DisplayName("POST /admin/cars/new - Giá có phần thập phân -> Báo lỗi tại ô giá, không tạo xe")
+    void testCreateCar_DecimalPrice_ShouldReturnFieldError() throws Exception {
+        when(carService.getAllProducers()).thenReturn(List.of());
+
+        mockMvc.perform(post("/admin/cars/new")
+                        .session(createAdminSession())
+                        .param("carName", "Mazda CX-5")
+                        .param("producerId", "1")
+                        .param("carModelYear", "2023")
+                        .param("color", "Đỏ")
+                        .param("capacity", "5")
+                        .param("rentPrice", "80.5")
+                        .param("importDate", "2023-05-10")
+                        .param("status", "Available")
+                        .param("description", "SUV thể thao hiện đại"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/car/form"))
+                .andExpect(model().attributeHasFieldErrors("carForm", "rentPrice"));
+
+        verify(carService, never()).createCar(any());
     }
 
     @Test

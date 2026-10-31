@@ -47,7 +47,7 @@ public class Car implements Serializable {
     @JoinColumn(name = "producer_id", nullable = false)
     private CarProducer producer;
 
-    @Column(name = "rent_price", precision = 10, scale = 2, nullable = false)
+    @Column(name = "rent_price", precision = 10, scale = 0, nullable = false)
     private BigDecimal rentPrice;
 
     @Column(name = "status", length = 10, nullable = false)

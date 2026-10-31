@@ -1,6 +1,7 @@
 package com.hsf.asgm.car;
 
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -43,7 +44,8 @@ public record CarRequest(
         Integer producerId,
 
         @NotNull(message = "Giá thuê không được để trống")
-        @DecimalMin(value = "0.01", message = "Giá thuê phải lớn hơn 0")
+        @DecimalMin(value = "1", message = "Giá thuê phải lớn hơn 0")
+        @Digits(integer = 10, fraction = 0, message = "Giá thuê phải là số nguyên (cột rent_price trong DB không có phần thập phân)")
         BigDecimal rentPrice,
 
         @NotBlank(message = "Trạng thái xe không được để trống")
