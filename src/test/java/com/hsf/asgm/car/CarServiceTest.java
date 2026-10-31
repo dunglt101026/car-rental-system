@@ -3,6 +3,7 @@ package com.hsf.asgm.car;
 import com.hsf.asgm.common.exception.BusinessException;
 import com.hsf.asgm.common.exception.ResourceNotFoundException;
 import com.hsf.asgm.rental.CarRentalRepository;
+import com.hsf.asgm.rental.RentalStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -214,5 +215,59 @@ class CarServiceTest {
 
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent().get(0).carName()).isEqualTo("Toyota Vios 1.5G");
+    }
+
+    private CarRequest requestWithStatus(CarStatus status) {
+        return new CarRequest("Toyota Vios 1.5G", 2024, "Bạc", 5, "Mô tả",
+                LocalDate.of(2023, 1, 15), 1, BigDecimal.valueOf(850000), status.name());
+    }
+
+    @Test
+    @DisplayName("updateCar - Xe đang có đơn Active -> Không cho đổi sang Available")
+    void testUpdateCar_ActiveRentalToAvailable_ShouldThrowException() {
+        when(carRepository.findById(10)).thenReturn(Optional.of(testCar));
+        when(carProducerRepository.findById(1)).thenReturn(Optional.of(testProducer));
+        when(carRentalRepository.existsByCar_CarIdAndStatus(10, RentalStatus.Active)).thenReturn(true);
+
+        assertThatThrownBy(() -> carService.updateCar(10, requestWithStatus(CarStatus.Available)))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("đang có đơn thuê Active");
+        verify(carRepository, never()).save(any(Car.class));
+    }
+
+    @Test
+    @DisplayName("updateCar - Xe không có đơn Active -> Không cho đặt tay sang Rented")
+    void testUpdateCar_NoActiveRentalToRented_ShouldThrowException() {
+        when(carRepository.findById(10)).thenReturn(Optional.of(testCar));
+        when(carProducerRepository.findById(1)).thenReturn(Optional.of(testProducer));
+        when(carRentalRepository.existsByCar_CarIdAndStatus(10, RentalStatus.Active)).thenReturn(false);
+
+        assertThatThrownBy(() -> carService.updateCar(10, requestWithStatus(CarStatus.Rented)))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("không thể đặt trạng thái Rented");
+        verify(carRepository, never()).save(any(Car.class));
+    }
+
+    @Test
+    @DisplayName("createCar - Không cho tạo xe ở trạng thái Rented")
+    void testCreateCar_WithRentedStatus_ShouldThrowException() {
+        when(carProducerRepository.findById(1)).thenReturn(Optional.of(testProducer));
+
+        assertThatThrownBy(() -> carService.createCar(requestWithStatus(CarStatus.Rented)))
+                .isInstanceOf(BusinessException.class);
+        verify(carRepository, never()).save(any(Car.class));
+    }
+
+    @Test
+    @DisplayName("deleteCar - Xe đang được thuê (đơn Active) -> Không cho xóa")
+    void testDeleteCar_WhenActiveRental_ShouldThrowException() {
+        when(carRepository.findById(10)).thenReturn(Optional.of(testCar));
+        when(carRentalRepository.existsByCar_CarIdAndStatus(10, RentalStatus.Active)).thenReturn(true);
+
+        assertThatThrownBy(() -> carService.deleteCar(10))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("đang được thuê");
+        verify(carRepository, never()).save(any(Car.class));
+        verify(carRepository, never()).delete(any(Car.class));
     }
 }

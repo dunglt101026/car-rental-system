@@ -112,8 +112,12 @@ public class AdminCarController {
 
     @PostMapping("/delete/{id}")
     public String handleDeleteCar(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
-        CarDeleteResult result = carService.deleteCar(id);
-        redirectAttributes.addFlashAttribute("successMessage", result.getDisplayMessage());
+        try {
+            CarDeleteResult result = carService.deleteCar(id);
+            redirectAttributes.addFlashAttribute("successMessage", result.getDisplayMessage());
+        } catch (BusinessException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
         return "redirect:/admin/cars";
     }
 

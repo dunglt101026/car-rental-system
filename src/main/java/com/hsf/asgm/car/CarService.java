@@ -3,6 +3,7 @@ package com.hsf.asgm.car;
 import com.hsf.asgm.common.exception.BusinessException;
 import com.hsf.asgm.common.exception.ResourceNotFoundException;
 import com.hsf.asgm.rental.CarRentalRepository;
+import com.hsf.asgm.rental.RentalStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -94,6 +95,10 @@ public class CarService {
         CarProducer producer = carProducerRepository.findById(request.producerId())
                 .orElseThrow(() -> new BusinessException("Không tìm thấy nhà sản xuất với mã: " + request.producerId()));
 
+        if (CarStatus.Rented.name().equals(request.status())) {
+            throw new BusinessException("Không thể tạo xe ở trạng thái Rented. Trạng thái này chỉ được đặt tự động khi có đơn thuê.");
+        }
+
         Car car = carMapper.toEntity(request);
         car.setProducer(producer);
 
@@ -108,6 +113,16 @@ public class CarService {
         CarProducer producer = carProducerRepository.findById(request.producerId())
                 .orElseThrow(() -> new BusinessException("Không tìm thấy nhà sản xuất với mã: " + request.producerId()));
 
+        // Business Rule: car status must stay consistent with its rentals.
+        boolean hasActiveRental = carRentalRepository.existsByCar_CarIdAndStatus(carId, RentalStatus.Active);
+        boolean requestRented = CarStatus.Rented.name().equals(request.status());
+        if (hasActiveRental && !requestRented) {
+            throw new BusinessException("Xe đang có đơn thuê Active. Hãy hoàn thành hoặc hủy đơn trước khi đổi trạng thái xe.");
+        }
+        if (!hasActiveRental && requestRented) {
+            throw new BusinessException("Xe không có đơn thuê Active nên không thể đặt trạng thái Rented.");
+        }
+
         carMapper.updateEntityFromRequest(request, car);
         car.setProducer(producer);
 
@@ -119,6 +134,9 @@ public class CarService {
     @Transactional
     public CarDeleteResult deleteCar(Integer carId) {
         Car car = getCarEntity(carId);
+        if (carRentalRepository.existsByCar_CarIdAndStatus(carId, RentalStatus.Active)) {
+            throw new BusinessException("Không thể xóa xe '" + car.getCarName() + "' vì xe đang được thuê (có đơn Active).");
+        }
         boolean hasRentalHistory = carRentalRepository.existsByCar_CarId(carId);
 
         if (hasRentalHistory) {

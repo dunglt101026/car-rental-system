@@ -24,5 +24,6 @@ public interface CarRentalRepository extends JpaRepository<CarRental, Integer>, 
     Optional<CarRental> findWithDetailsByCarRentId(Integer carRentId);
 
     boolean existsByCar_CarId(Integer carId);
+    boolean existsByCar_CarIdAndStatus(Integer carId, RentalStatus status);
     boolean existsByCustomer_CustomerId(Integer customerId);
 }
