@@ -1,9 +1,10 @@
 package com.hsf.fucarrenting.admin;
 
+import com.hsf.fucarrenting.admin.controller.AdminRentalController;
 import com.hsf.fucarrenting.auth.AccountResponse;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
-import com.hsf.fucarrenting.rental.RentalResponse;
-import com.hsf.fucarrenting.rental.RentalService;
+import com.hsf.fucarrenting.rental.dto.RentalResponse;
+import com.hsf.fucarrenting.rental.service.RentalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

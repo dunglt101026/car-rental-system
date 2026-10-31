@@ -1,11 +1,18 @@
 package com.hsf.fucarrenting.rental;
 
-import com.hsf.fucarrenting.car.Car;
-import com.hsf.fucarrenting.car.CarRepository;
-import com.hsf.fucarrenting.car.CarStatus;
+import com.hsf.fucarrenting.car.entity.Car;
+import com.hsf.fucarrenting.car.repository.CarRepository;
+import com.hsf.fucarrenting.car.entity.CarStatus;
 import com.hsf.fucarrenting.common.exception.BusinessException;
-import com.hsf.fucarrenting.customer.Customer;
-import com.hsf.fucarrenting.customer.CustomerRepository;
+import com.hsf.fucarrenting.customer.entity.Customer;
+import com.hsf.fucarrenting.customer.repository.CustomerRepository;
+import com.hsf.fucarrenting.rental.dto.RentalCreateRequest;
+import com.hsf.fucarrenting.rental.dto.RentalResponse;
+import com.hsf.fucarrenting.rental.entity.CarRental;
+import com.hsf.fucarrenting.rental.entity.RentalStatus;
+import com.hsf.fucarrenting.rental.mapper.RentalMapper;
+import com.hsf.fucarrenting.rental.repository.CarRentalRepository;
+import com.hsf.fucarrenting.rental.service.RentalServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +51,7 @@ class RentalServiceTest {
     private RentalMapper rentalMapper;
 
     @InjectMocks
-    private RentalService rentalService;
+    private RentalServiceImpl rentalService;
 
     private Car testCar;
     private Customer testCustomer;

@@ -1,9 +1,19 @@
 package com.hsf.fucarrenting.car;
 
+import com.hsf.fucarrenting.car.dto.CarDeleteResult;
+import com.hsf.fucarrenting.car.dto.CarRequest;
+import com.hsf.fucarrenting.car.dto.CarResponse;
+import com.hsf.fucarrenting.car.entity.Car;
+import com.hsf.fucarrenting.car.entity.CarProducer;
+import com.hsf.fucarrenting.car.entity.CarStatus;
+import com.hsf.fucarrenting.car.mapper.CarMapper;
+import com.hsf.fucarrenting.car.repository.CarProducerRepository;
+import com.hsf.fucarrenting.car.repository.CarRepository;
+import com.hsf.fucarrenting.car.service.CarServiceImpl;
 import com.hsf.fucarrenting.common.exception.BusinessException;
 import com.hsf.fucarrenting.common.exception.ResourceNotFoundException;
-import com.hsf.fucarrenting.rental.CarRentalRepository;
-import com.hsf.fucarrenting.rental.RentalStatus;
+import com.hsf.fucarrenting.rental.repository.CarRentalRepository;
+import com.hsf.fucarrenting.rental.entity.RentalStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

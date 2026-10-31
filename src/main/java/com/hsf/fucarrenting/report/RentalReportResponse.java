@@ -1,6 +1,6 @@
 package com.hsf.fucarrenting.report;
 
-import com.hsf.fucarrenting.rental.RentalResponse;
+import com.hsf.fucarrenting.rental.dto.RentalResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

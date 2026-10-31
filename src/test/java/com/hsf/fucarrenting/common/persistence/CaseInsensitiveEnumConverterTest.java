@@ -1,7 +1,7 @@
 package com.hsf.fucarrenting.common.persistence;
 
-import com.hsf.fucarrenting.car.CarStatus;
-import com.hsf.fucarrenting.car.CarStatusConverter;
+import com.hsf.fucarrenting.car.entity.CarStatus;
+import com.hsf.fucarrenting.car.entity.CarStatusConverter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

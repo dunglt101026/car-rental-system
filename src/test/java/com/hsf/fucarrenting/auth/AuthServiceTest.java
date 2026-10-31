@@ -1,9 +1,9 @@
 package com.hsf.fucarrenting.auth;
 
 import com.hsf.fucarrenting.common.exception.BusinessException;
-import com.hsf.fucarrenting.customer.Customer;
-import com.hsf.fucarrenting.customer.CustomerMapper;
-import com.hsf.fucarrenting.customer.CustomerRepository;
+import com.hsf.fucarrenting.customer.entity.Customer;
+import com.hsf.fucarrenting.customer.mapper.CustomerMapper;
+import com.hsf.fucarrenting.customer.repository.CustomerRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +43,7 @@ class AuthServiceTest {
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @InjectMocks
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     private RegisterRequest buildRegisterRequest() {
         return new RegisterRequest(

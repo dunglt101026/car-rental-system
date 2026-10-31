@@ -1,13 +1,13 @@
 package com.hsf.fucarrenting.report;
 
-import com.hsf.fucarrenting.car.Car;
-import com.hsf.fucarrenting.car.CarStatus;
-import com.hsf.fucarrenting.customer.Customer;
-import com.hsf.fucarrenting.rental.CarRental;
-import com.hsf.fucarrenting.rental.CarRentalRepository;
-import com.hsf.fucarrenting.rental.RentalMapper;
-import com.hsf.fucarrenting.rental.RentalResponse;
-import com.hsf.fucarrenting.rental.RentalStatus;
+import com.hsf.fucarrenting.car.entity.Car;
+import com.hsf.fucarrenting.car.entity.CarStatus;
+import com.hsf.fucarrenting.customer.entity.Customer;
+import com.hsf.fucarrenting.rental.entity.CarRental;
+import com.hsf.fucarrenting.rental.repository.CarRentalRepository;
+import com.hsf.fucarrenting.rental.mapper.RentalMapper;
+import com.hsf.fucarrenting.rental.dto.RentalResponse;
+import com.hsf.fucarrenting.rental.entity.RentalStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

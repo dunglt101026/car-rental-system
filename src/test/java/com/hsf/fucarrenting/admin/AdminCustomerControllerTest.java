@@ -1,13 +1,14 @@
 package com.hsf.fucarrenting.admin;
 
+import com.hsf.fucarrenting.admin.controller.AdminCustomerController;
 import com.hsf.fucarrenting.auth.AccountResponse;
 import com.hsf.fucarrenting.auth.AuthService;
 import com.hsf.fucarrenting.auth.RegisterRequest;
 import com.hsf.fucarrenting.common.exception.BusinessException;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
-import com.hsf.fucarrenting.customer.CustomerProfileRequest;
-import com.hsf.fucarrenting.customer.CustomerResponse;
-import com.hsf.fucarrenting.customer.CustomerService;
+import com.hsf.fucarrenting.customer.dto.CustomerProfileRequest;
+import com.hsf.fucarrenting.customer.dto.CustomerResponse;
+import com.hsf.fucarrenting.customer.service.CustomerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,5 +1,6 @@
 package com.hsf.fucarrenting.admin;
 
+import com.hsf.fucarrenting.admin.controller.AdminReportController;
 import com.hsf.fucarrenting.auth.AccountResponse;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
 import com.hsf.fucarrenting.report.RentalReportResponse;

@@ -1,6 +1,6 @@
 package com.hsf.fucarrenting.review;
 
-import com.hsf.fucarrenting.rental.CarRental;
+import com.hsf.fucarrenting.rental.entity.CarRental;
 import jakarta.persistence.*;
 import lombok.*;
 

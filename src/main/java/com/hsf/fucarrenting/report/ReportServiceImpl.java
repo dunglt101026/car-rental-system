@@ -1,11 +1,11 @@
 package com.hsf.fucarrenting.report;
 
-import com.hsf.fucarrenting.rental.CarRental;
-import com.hsf.fucarrenting.rental.CarRentalRepository;
-import com.hsf.fucarrenting.rental.RentalMapper;
-import com.hsf.fucarrenting.rental.RentalResponse;
-import com.hsf.fucarrenting.rental.RentalSpecification;
-import com.hsf.fucarrenting.rental.RentalStatus;
+import com.hsf.fucarrenting.rental.entity.CarRental;
+import com.hsf.fucarrenting.rental.repository.CarRentalRepository;
+import com.hsf.fucarrenting.rental.mapper.RentalMapper;
+import com.hsf.fucarrenting.rental.dto.RentalResponse;
+import com.hsf.fucarrenting.rental.repository.RentalSpecification;
+import com.hsf.fucarrenting.rental.entity.RentalStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;

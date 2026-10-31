@@ -3,7 +3,13 @@ package com.hsf.fucarrenting.customer;
 import com.hsf.fucarrenting.auth.Account;
 import com.hsf.fucarrenting.auth.AccountRepository;
 import com.hsf.fucarrenting.auth.Role;
-import com.hsf.fucarrenting.rental.CarRentalRepository;
+import com.hsf.fucarrenting.customer.dto.CustomerProfileRequest;
+import com.hsf.fucarrenting.customer.dto.CustomerResponse;
+import com.hsf.fucarrenting.customer.entity.Customer;
+import com.hsf.fucarrenting.customer.mapper.CustomerMapper;
+import com.hsf.fucarrenting.customer.repository.CustomerRepository;
+import com.hsf.fucarrenting.customer.service.CustomerServiceImpl;
+import com.hsf.fucarrenting.rental.repository.CarRentalRepository;
 import com.hsf.fucarrenting.common.exception.BusinessException;
 import com.hsf.fucarrenting.common.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +49,7 @@ class CustomerServiceTest {
     private CarRentalRepository carRentalRepository;
 
     @InjectMocks
-    private CustomerService customerService;
+    private CustomerServiceImpl customerService;
 
     private Customer customer1;
     private Customer customer2;
