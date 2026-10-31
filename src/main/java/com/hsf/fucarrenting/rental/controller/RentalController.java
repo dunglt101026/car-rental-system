@@ -2,7 +2,7 @@ package com.hsf.fucarrenting.rental.controller;
 
 import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import com.hsf.fucarrenting.car.dto.CarResponse;
-import com.hsf.fucarrenting.car.service.CarServiceImpl;
+import com.hsf.fucarrenting.car.service.CarService;
 import com.hsf.fucarrenting.car.entity.CarStatus;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
 import com.hsf.fucarrenting.common.exception.BusinessException;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class RentalController {
 
     private final RentalService rentalService;
-    private final CarServiceImpl carService;
+    private final CarService carService;
     private final CustomerService customerService;
 
     @GetMapping
@@ -45,57 +45,67 @@ public class RentalController {
         return "rental/list";
     }
 
+    /**
+     * Booking page. carId is optional: coming from a car detail page pre-selects that car,
+     * otherwise the customer picks one or many cars from the Available list.
+     */
     @GetMapping("/book")
     public String showBookingForm(
-            @RequestParam("carId") Integer carId,
+            @RequestParam(value = "carId", required = false) Integer carId,
             @SessionAttribute(AuthInterceptor.SESSION_USER) AccountResponse currentUser,
             RedirectAttributes redirectAttributes,
             Model model
     ) {
-        CarResponse car = carService.getCarById(carId);
-        if (!CarStatus.Available.name().equalsIgnoreCase(car.status())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Xe '" + car.carName() + "' hiện không khả dụng để đặt thuê.");
-            return "redirect:/cars";
+        if (carId != null) {
+            CarResponse car = carService.getCarById(carId);
+            if (!CarStatus.Available.name().equalsIgnoreCase(car.status())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Xe '" + car.carName() + "' hiện không khả dụng để đặt thuê.");
+                return "redirect:/cars";
+            }
         }
 
         CustomerResponse customer = customerService.getCustomerByAccountId(currentUser.accountId());
 
         if (!model.containsAttribute("rentalRequest")) {
             RentalCreateRequest defaultForm = new RentalCreateRequest(
-                    List.of(carId),
+                    carId == null ? List.of() : List.of(carId),
                     LocalDate.now(),
                     LocalDate.now().plusDays(1)
             );
             model.addAttribute("rentalRequest", defaultForm);
         }
 
-        populateBookingModel(model, car, customer);
+        populateBookingModel(model, customer);
 
         return "rental/book";
     }
 
+    /**
+     * action=quote only calculates the estimated cost and shows the page again;
+     * any other action creates the rentals.
+     */
     @PostMapping("/book")
     public String handleBookCar(
             @Valid @ModelAttribute("rentalRequest") RentalCreateRequest request,
             BindingResult bindingResult,
+            @RequestParam(value = "action", defaultValue = "book") String action,
             @SessionAttribute(AuthInterceptor.SESSION_USER) AccountResponse currentUser,
             RedirectAttributes redirectAttributes,
             Model model
     ) {
-        if (request.carIds() == null || request.carIds().isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn ít nhất một xe để đặt thuê.");
-            return "redirect:/cars";
-        }
-
         CustomerResponse customer = customerService.getCustomerByAccountId(currentUser.accountId());
-        CarResponse car = carService.getCarById(request.carIds().getFirst());
+        populateBookingModel(model, customer);
 
         if (bindingResult.hasErrors()) {
-            populateBookingModel(model, car, customer);
             return "rental/book";
         }
 
         try {
+            if ("quote".equals(action)) {
+                model.addAttribute("quote", rentalService.quoteRental(request));
+                return "rental/book";
+            }
+
             List<RentalResponse> booked = rentalService.bookCars(customer.customerId(), request);
             String carNames = booked.stream().map(rental -> rental.carName()).collect(Collectors.joining(", "));
             redirectAttributes.addFlashAttribute("successMessage",
@@ -103,20 +113,14 @@ public class RentalController {
             return "redirect:/customer/rentals";
         } catch (BusinessException ex) {
             model.addAttribute("errorMessage", ex.getMessage());
-            populateBookingModel(model, car, customer);
             return "rental/book";
         }
     }
 
-    private void populateBookingModel(Model model, CarResponse car, CustomerResponse customer) {
-        List<CarResponse> otherCars = carService.getAvailableCars(null, null, null, null, null)
-                .stream()
-                .filter(c -> !c.carId().equals(car.carId()))
-                .toList();
-
-        model.addAttribute("car", car);
-        model.addAttribute("otherCars", otherCars);
+    private void populateBookingModel(Model model, CustomerResponse customer) {
+        model.addAttribute("availableCars", carService.getAvailableCars(null, null, null, null, null));
         model.addAttribute("customer", customer);
+        model.addAttribute("today", LocalDate.now());
     }
 }
 

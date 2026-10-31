@@ -7,6 +7,7 @@ import com.hsf.fucarrenting.common.exception.BusinessException;
 import com.hsf.fucarrenting.customer.entity.Customer;
 import com.hsf.fucarrenting.customer.repository.CustomerRepository;
 import com.hsf.fucarrenting.rental.dto.RentalCreateRequest;
+import com.hsf.fucarrenting.rental.dto.RentalQuoteResponse;
 import com.hsf.fucarrenting.rental.dto.RentalResponse;
 import com.hsf.fucarrenting.rental.entity.CarRental;
 import com.hsf.fucarrenting.rental.entity.RentalStatus;
@@ -256,6 +257,42 @@ class RentalServiceTest {
         assertThat(car1.getStatus()).isEqualTo(CarStatus.Available);
         verify(carRentalRepository, never()).save(any());
         verify(carRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("quoteRental - Tính tổng tiền nhiều xe, không lưu gì vào DB")
+    void testQuoteRental_MultipleCars_ShouldSumWithoutSaving() {
+        Car car1 = Car.builder().carId(1).carName("Toyota Camry")
+                .rentPrice(BigDecimal.valueOf(80)).status(CarStatus.Available).build();
+        Car car2 = Car.builder().carId(2).carName("Ford Transit")
+                .rentPrice(BigDecimal.valueOf(120)).status(CarStatus.Available).build();
+        when(carRepository.findById(1)).thenReturn(Optional.of(car1));
+        when(carRepository.findById(2)).thenReturn(Optional.of(car2));
+
+        RentalCreateRequest request = new RentalCreateRequest(
+                List.of(1, 2), LocalDate.now(), LocalDate.now().plusDays(2));
+        RentalQuoteResponse quote = rentalService.quoteRental(request);
+
+        assertThat(quote.days()).isEqualTo(2);
+        assertThat(quote.lines()).extracting(line -> line.subtotal())
+                .usingElementComparator((a, b) -> a.compareTo(b))
+                .containsExactly(BigDecimal.valueOf(160), BigDecimal.valueOf(240));
+        assertThat(quote.totalPrice()).isEqualByComparingTo(BigDecimal.valueOf(400));
+        assertThat(car1.getStatus()).isEqualTo(CarStatus.Available);
+        verify(carRentalRepository, never()).save(any());
+        verify(carRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("quoteRental - Ngày trả trước ngày nhận -> Báo lỗi")
+    void testQuoteRental_ReturnBeforePickup_ShouldThrow() {
+        RentalCreateRequest request = new RentalCreateRequest(
+                List.of(1), LocalDate.now().plusDays(3), LocalDate.now().plusDays(1));
+
+        assertThatThrownBy(() -> rentalService.quoteRental(request))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Ngày trả xe phải sau ngày nhận xe");
+        verify(carRepository, never()).findById(any());
     }
 
 }

@@ -2,6 +2,7 @@ package com.hsf.fucarrenting.rental.service;
 
 import com.hsf.fucarrenting.rental.entity.CarRental;
 import com.hsf.fucarrenting.rental.dto.RentalCreateRequest;
+import com.hsf.fucarrenting.rental.dto.RentalQuoteResponse;
 import com.hsf.fucarrenting.rental.dto.RentalResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,8 @@ public interface RentalService {
     RentalResponse getRentalById(Integer carRentId);
 
     CarRental getRentalEntity(Integer carRentId);
+
+    RentalQuoteResponse quoteRental(RentalCreateRequest request);
 
     @Transactional
     List<RentalResponse> bookCars(Integer customerId, RentalCreateRequest request);

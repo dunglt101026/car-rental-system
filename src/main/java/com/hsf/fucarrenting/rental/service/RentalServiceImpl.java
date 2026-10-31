@@ -12,6 +12,7 @@ import com.hsf.fucarrenting.rental.repository.CarRentalRepository;
 import com.hsf.fucarrenting.rental.repository.RentalSpecification;
 import com.hsf.fucarrenting.rental.entity.RentalStatus;
 import com.hsf.fucarrenting.rental.dto.RentalCreateRequest;
+import com.hsf.fucarrenting.rental.dto.RentalQuoteResponse;
 import com.hsf.fucarrenting.rental.dto.RentalResponse;
 import com.hsf.fucarrenting.rental.mapper.RentalMapper;
 import lombok.RequiredArgsConstructor;
@@ -68,44 +69,38 @@ public class RentalServiceImpl implements RentalService {
     }
 
     /**
+     * Estimates the cost of a booking without saving anything. Runs the same checks as {@link #bookCars}.
+     */
+    @Override
+    public RentalQuoteResponse quoteRental(RentalCreateRequest request) {
+        long days = validateBookingDates(request);
+        List<RentalQuoteResponse.Line> lines = loadAvailableCars(request.carIds()).stream()
+                .map(car -> new RentalQuoteResponse.Line(
+                        car.getCarId(),
+                        car.getCarName(),
+                        car.getRentPrice(),
+                        car.getRentPrice().multiply(BigDecimal.valueOf(days))))
+                .toList();
+        BigDecimal total = lines.stream()
+                .map(line -> line.subtotal())
+                .reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
+        return new RentalQuoteResponse(days, lines, total);
+    }
+
+    /**
      * Books one or many cars for the same period. Each car becomes its own car_rental record.
      * All cars must be Available, otherwise nothing is booked.
      */
     @Transactional
     @Override
     public List<RentalResponse> bookCars(Integer customerId, RentalCreateRequest request) {
-        if (request.carIds() == null || request.carIds().isEmpty()) {
-            throw new BusinessException("Vui lòng chọn ít nhất một xe để đặt thuê.");
-        }
-        if (request.pickupDate() == null || request.returnDate() == null) {
-            throw new BusinessException("Vui lòng chọn ngày nhận xe và ngày trả xe.");
-        }
-
-        if (request.pickupDate().isBefore(LocalDate.now())) {
-            throw new BusinessException("Ngày nhận xe không thể ở trong quá khứ.");
-        }
-
-        if (!request.returnDate().isAfter(request.pickupDate())) {
-            throw new BusinessException("Ngày trả xe phải sau ngày nhận xe ít nhất 1 ngày.");
-        }
+        long days = validateBookingDates(request);
 
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin khách hàng với mã: " + customerId));
 
         // Validate every car before saving anything
-        List<Car> cars = request.carIds().stream()
-                .distinct()
-                .map(carId -> carRepository.findById(carId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy xe với mã: " + carId)))
-                .toList();
-
-        for (Car car : cars) {
-            if (car.getStatus() != CarStatus.Available) {
-                throw new BusinessException("Xe '" + car.getCarName() + "' hiện không khả dụng để đặt thuê (trạng thái: " + car.getStatus() + ").");
-            }
-        }
-
-        long days = ChronoUnit.DAYS.between(request.pickupDate(), request.returnDate());
+        List<Car> cars = loadAvailableCars(request.carIds());
 
         return cars.stream().map(car -> {
             BigDecimal totalRentPrice = car.getRentPrice().multiply(BigDecimal.valueOf(days));
@@ -130,6 +125,47 @@ public class RentalServiceImpl implements RentalService {
 
             return rentalMapper.toResponse(savedRental);
         }).toList();
+    }
+
+    /**
+     * Checks the booking period and returns the number of rental days.
+     */
+    private long validateBookingDates(RentalCreateRequest request) {
+        if (request.pickupDate() == null || request.returnDate() == null) {
+            throw new BusinessException("Vui lòng chọn ngày nhận xe và ngày trả xe.");
+        }
+
+        if (request.pickupDate().isBefore(LocalDate.now())) {
+            throw new BusinessException("Ngày nhận xe không thể ở trong quá khứ.");
+        }
+
+        if (!request.returnDate().isAfter(request.pickupDate())) {
+            throw new BusinessException("Ngày trả xe phải sau ngày nhận xe ít nhất 1 ngày.");
+        }
+
+        return ChronoUnit.DAYS.between(request.pickupDate(), request.returnDate());
+    }
+
+    /**
+     * Loads the selected cars and makes sure every one of them is Available.
+     */
+    private List<Car> loadAvailableCars(List<Integer> carIds) {
+        if (carIds == null || carIds.isEmpty()) {
+            throw new BusinessException("Vui lòng chọn ít nhất một xe để đặt thuê.");
+        }
+
+        List<Car> cars = carIds.stream()
+                .distinct()
+                .map(carId -> carRepository.findById(carId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy xe với mã: " + carId)))
+                .toList();
+
+        for (Car car : cars) {
+            if (car.getStatus() != CarStatus.Available) {
+                throw new BusinessException("Xe '" + car.getCarName() + "' hiện không khả dụng để đặt thuê (trạng thái: " + car.getStatus() + ").");
+            }
+        }
+        return cars;
     }
 
     @Transactional

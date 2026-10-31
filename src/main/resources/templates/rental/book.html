@@ -8,54 +8,15 @@
 <body>
 <div layout:fragment="content" class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-lg-10">
+        <div class="col-lg-11">
             <div class="card card-modern p-4 mb-4 border-start border-primary border-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h2 class="fw-bold text-dark mb-1">Xác Nhận Đặt Thuê Xe</h2>
-                        <p class="text-muted mb-0">Vui lòng kiểm tra thông tin xe, người thuê và thời gian đặt thuê.</p>
-                    </div>
-                    <span class="badge bg-primary px-3 py-2 fs-6">Bước 2 / 2</span>
-                </div>
+                <h2 class="fw-bold text-dark mb-1">Đặt Thuê Xe</h2>
+                <p class="text-muted mb-0">Chọn thời gian thuê và một hoặc nhiều xe. Mỗi xe được lập thành một đơn thuê riêng.</p>
             </div>
 
             <div class="row g-4">
-                <!-- Left Column: Car & Customer Overview -->
-                <div class="col-md-5">
-                    <!-- Car Summary Card -->
-                    <div class="card card-modern p-4 mb-4 border">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-primary" th:text="${car.producerName}">Toyota</span>
-                            <span class="badge bg-success">Khả dụng</span>
-                        </div>
-                        <h5 class="fw-bold text-dark mt-2 mb-2" th:text="${car.carName}">Toyota Camry 2.5Q</h5>
-                        <p class="text-muted small mb-3" th:text="${car.description}">Mô tả tóm tắt của xe</p>
-
-                        <ul class="list-group list-group-flush small mb-3">
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span class="text-muted">Số chỗ ngồi:</span>
-                                <span class="fw-semibold"><span th:text="${car.capacity}">5</span> chỗ</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span class="text-muted">Màu sắc:</span>
-                                <span class="fw-semibold" th:text="${car.color}">Đen</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span class="text-muted">Năm sản xuất:</span>
-                                <span class="fw-semibold" th:text="${car.carModelYear}">2023</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span class="text-muted">Giá thuê theo ngày:</span>
-                                <span class="fw-bold text-primary fs-6" id="dailyRateText"
-                                      th:attr="data-price=${car.rentPrice}"
-                                      th:text="${'$' + #numbers.formatDecimal(car.rentPrice, 1, 2) + ' / ngày'}">
-                                    $80.00 / ngày
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Customer Info Card -->
+                <!-- Left Column: Customer Overview -->
+                <div class="col-md-4">
                     <div class="card card-modern p-4 border">
                         <h6 class="fw-bold text-secondary mb-3">Thông Tin Người Thuê</h6>
                         <ul class="list-group list-group-flush small">
@@ -82,86 +43,117 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Booking Form & Real-time Calculation -->
-                <div class="col-md-7">
+                <!-- Right Column: Booking Form -->
+                <div class="col-md-8">
                     <div class="card card-modern p-4 border">
-                        <h5 class="fw-bold text-dark mb-4">Thời Gian Thuê & Chi Phí</h5>
+                        <form th:action="@{/customer/rentals/book}" th:object="${rentalRequest}" method="post">
 
-                        <form th:action="@{/customer/rentals/book}" th:object="${rentalRequest}" method="post" id="bookingForm">
-                            <input type="hidden" name="carIds" th:value="${car.carId}" />
-
+                            <!-- 1. Rental Period -->
+                            <h5 class="fw-semibold text-secondary border-bottom pb-2 mb-3">1. Thời gian thuê</h5>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
                                     <label for="pickupDate" class="form-label small fw-semibold">
-                                        Ngày nhận xe (Pickup Date) <span class="text-danger">*</span>
+                                        Ngày nhận xe <span class="text-danger">*</span>
                                     </label>
                                     <input type="date" class="form-control" id="pickupDate" th:field="*{pickupDate}"
+                                           th:attr="min=${today}"
                                            th:classappend="${#fields.hasErrors('pickupDate')} ? 'is-invalid' : ''" required>
                                     <div class="invalid-feedback" th:if="${#fields.hasErrors('pickupDate')}" th:errors="*{pickupDate}"></div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="returnDate" class="form-label small fw-semibold">
-                                        Ngày trả xe (Return Date) <span class="text-danger">*</span>
+                                        Ngày trả xe <span class="text-danger">*</span>
                                     </label>
                                     <input type="date" class="form-control" id="returnDate" th:field="*{returnDate}"
-                                           th:classappend="${#fields.hasErrors('returnDate')} ? 'is-invalid' : ''" required>
+                                           th:attr="min=${today.plusDays(1)}"
+                                           th:classappend="${#fields.hasErrors('returnDate') or #fields.hasErrors('returnDateAfterPickupDate')} ? 'is-invalid' : ''" required>
                                     <div class="invalid-feedback" th:if="${#fields.hasErrors('returnDate')}" th:errors="*{returnDate}"></div>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('returnDateAfterPickupDate')}" th:errors="*{returnDateAfterPickupDate}"></div>
                                 </div>
                             </div>
 
-                            <!-- Additional Cars -->
-                            <div class="mb-4" th:if="${!#lists.isEmpty(otherCars)}">
-                                <label class="form-label small fw-semibold">Thuê thêm xe khác cùng thời gian (tùy chọn)</label>
-                                <div class="border rounded-3 p-2" style="max-height: 220px; overflow-y: auto;">
-                                    <div class="form-check py-1" th:each="oc : ${otherCars}">
-                                        <input class="form-check-input extra-car" type="checkbox" name="carIds"
-                                               th:id="${'extraCar' + oc.carId}"
-                                               th:value="${oc.carId}"
-                                               th:attr="data-price=${oc.rentPrice}"
-                                               th:checked="${rentalRequest.carIds() != null and rentalRequest.carIds().contains(oc.carId)}">
-                                        <label class="form-check-label small d-flex justify-content-between"
-                                               th:for="${'extraCar' + oc.carId}">
-                                            <span><span th:text="${oc.carName}">Honda City</span>
-                                                <span class="text-muted" th:text="${'(' + oc.producerName + ', ' + oc.capacity + ' chỗ)'}">(Honda, 5 chỗ)</span></span>
-                                            <span class="fw-semibold" th:text="${'$' + #numbers.formatDecimal(oc.rentPrice, 1, 2) + ' / ngày'}">$50.00 / ngày</span>
-                                        </label>
-                                    </div>
-                                </div>
+                            <!-- 2. Car Selection -->
+                            <h5 class="fw-semibold text-secondary border-bottom pb-2 mb-3">2. Chọn xe</h5>
+                            <div class="text-danger small mb-2" th:if="${#fields.hasErrors('carIds')}" th:errors="*{carIds}"></div>
+
+                            <div th:if="${#lists.isEmpty(availableCars)}" class="text-muted small mb-4">
+                                Hiện không còn xe nào khả dụng để đặt thuê.
                             </div>
 
-                            <!-- Real-time Cost Estimation Box -->
-                            <div class="p-4 bg-light rounded-3 mb-4 border">
-                                <h6 class="fw-bold text-secondary mb-3">Chi Tiết Thanh Toán Dự Kiến</h6>
-                                <div class="d-flex justify-content-between align-items-center mb-2 small">
-                                    <span>Số xe thuê:</span>
-                                    <span class="fw-semibold" id="carCount">1 xe</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mb-2 small">
-                                    <span>Tổng đơn giá theo ngày:</span>
-                                    <span class="fw-semibold" id="dailyTotal" th:text="${'$' + #numbers.formatDecimal(car.rentPrice, 1, 2)}">$80.00</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mb-2 small">
+                            <div class="border rounded-3 mb-4" style="max-height: 360px; overflow-y: auto;"
+                                 th:if="${not #lists.isEmpty(availableCars)}">
+                                <table class="table table-hover align-middle small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 48px;"></th>
+                                            <th>Xe</th>
+                                            <th class="text-center">Số chỗ</th>
+                                            <th class="text-end">Giá / ngày</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="c : ${availableCars}">
+                                            <td class="text-center">
+                                                <input class="form-check-input" type="checkbox" name="carIds"
+                                                       th:id="${'car' + c.carId}"
+                                                       th:value="${c.carId}"
+                                                       th:checked="${rentalRequest.carIds() != null and #lists.contains(rentalRequest.carIds(), c.carId)}">
+                                            </td>
+                                            <td>
+                                                <label class="fw-semibold text-dark" th:for="${'car' + c.carId}" th:text="${c.carName}">Toyota Camry 2.5Q</label>
+                                                <div class="text-muted" th:text="${c.producerName + ' - ' + c.color}">Toyota - Black</div>
+                                            </td>
+                                            <td class="text-center" th:text="${c.capacity}">5</td>
+                                            <td class="text-end fw-semibold" th:text="${'$' + #numbers.formatDecimal(c.rentPrice, 1, 2)}">$80.00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- 3. Estimated Cost -->
+                            <h5 class="fw-semibold text-secondary border-bottom pb-2 mb-3">3. Chi phí dự kiến</h5>
+                            <div th:if="${quote == null}" class="text-muted small mb-4">
+                                Bấm "Tính chi phí" để xem tổng tiền trước khi xác nhận đặt thuê.
+                            </div>
+
+                            <div th:if="${quote != null}" class="p-3 bg-light rounded-3 border mb-4">
+                                <table class="table table-sm small mb-2">
+                                    <thead>
+                                        <tr>
+                                            <th>Xe</th>
+                                            <th class="text-end">Giá / ngày</th>
+                                            <th class="text-end">Thành tiền</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="line : ${quote.lines}">
+                                            <td th:text="${line.carName}">Toyota Camry 2.5Q</td>
+                                            <td class="text-end" th:text="${'$' + #numbers.formatDecimal(line.dailyPrice, 1, 2)}">$80.00</td>
+                                            <td class="text-end fw-semibold" th:text="${'$' + #numbers.formatDecimal(line.subtotal, 1, 2)}">$160.00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="d-flex justify-content-between small mb-2">
                                     <span>Thời gian thuê:</span>
-                                    <span class="fw-semibold text-primary" id="calculatedDays">1 ngày</span>
+                                    <span class="fw-semibold text-primary" th:text="${quote.days + ' ngày'}">2 ngày</span>
                                 </div>
-                                <hr class="my-3">
+                                <hr class="my-2">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="fw-bold fs-6">Tổng chi phí thuê:</span>
-                                    <span class="fw-bold fs-4 text-success" id="totalEstimatedPrice">$80.00</span>
-                                </div>
-                                <div id="dateErrorNotice" class="text-danger small mt-2 d-none">
-                                    Ngày trả xe phải sau ngày nhận xe ít nhất 1 ngày!
+                                    <span class="fw-bold">Tổng chi phí thuê:</span>
+                                    <span class="fw-bold fs-4 text-success" th:text="${'$' + #numbers.formatDecimal(quote.totalPrice, 1, 2)}">$400.00</span>
                                 </div>
                             </div>
 
-                            <div class="d-grid gap-2">
-                                <button type="submit" id="submitBtn" class="btn btn-primary btn-lg fw-bold py-3 shadow-sm">
-                                    Xác Nhận Đặt Thuê Xe
+                            <!-- The quote button comes first so pressing Enter only recalculates -->
+                            <div class="d-flex flex-wrap justify-content-end gap-2">
+                                <a th:href="@{/cars}" class="btn btn-outline-secondary">Quay lại danh mục xe</a>
+                                <button type="submit" name="action" value="quote" class="btn btn-outline-primary px-4">
+                                    Tính chi phí
                                 </button>
-                                <a th:href="@{/cars/{id}(id=${car.carId})}" class="btn btn-outline-secondary">
-                                    Hủy bỏ
-                                </a>
+                                <button type="submit" name="action" value="book" class="btn btn-primary px-4 fw-semibold">
+                                    Xác nhận đặt thuê
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -170,84 +162,5 @@
         </div>
     </div>
 </div>
-
-<th:block layout:fragment="scripts">
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const pickupInput = document.getElementById("pickupDate");
-        const returnInput = document.getElementById("returnDate");
-        const daysDisplay = document.getElementById("calculatedDays");
-        const totalDisplay = document.getElementById("totalEstimatedPrice");
-        const errorNotice = document.getElementById("dateErrorNotice");
-        const submitBtn = document.getElementById("submitBtn");
-        const dailyRateEl = document.getElementById("dailyRateText");
-        const mainRate = parseFloat(dailyRateEl.getAttribute("data-price")) || 0;
-        const extraCars = document.querySelectorAll(".extra-car");
-        const carCountDisplay = document.getElementById("carCount");
-        const dailyTotalDisplay = document.getElementById("dailyTotal");
-
-        function currentDailyRate() {
-            let rate = mainRate;
-            let count = 1;
-            extraCars.forEach(function (cb) {
-                if (cb.checked) {
-                    rate += parseFloat(cb.getAttribute("data-price")) || 0;
-                    count++;
-                }
-            });
-            carCountDisplay.textContent = count + " xe";
-            dailyTotalDisplay.textContent = "$" + rate.toFixed(2);
-            return rate;
-        }
-
-        const todayStr = new Date().toISOString().split("T")[0];
-        if (!pickupInput.value) {
-            pickupInput.value = todayStr;
-        }
-        pickupInput.min = todayStr;
-
-        function updateCalculation() {
-            const pDate = new Date(pickupInput.value);
-            const rDate = new Date(returnInput.value);
-
-            if (!isNaN(pDate.getTime()) && !isNaN(rDate.getTime())) {
-                const diffTime = rDate.getTime() - pDate.getTime();
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                if (diffDays <= 0) {
-                    daysDisplay.textContent = "Không hợp lệ";
-                    totalDisplay.textContent = "$0.00";
-                    errorNotice.classList.remove("d-none");
-                    submitBtn.disabled = true;
-                } else {
-                    daysDisplay.textContent = diffDays + " ngày";
-                    const total = (diffDays * currentDailyRate()).toFixed(2);
-                    totalDisplay.textContent = "$" + total;
-                    errorNotice.classList.add("d-none");
-                    submitBtn.disabled = false;
-                }
-            }
-        }
-
-        pickupInput.addEventListener("change", function () {
-            if (pickupInput.value) {
-                const nextDay = new Date(pickupInput.value);
-                nextDay.setDate(nextDay.getDate() + 1);
-                returnInput.min = nextDay.toISOString().split("T")[0];
-                if (!returnInput.value || returnInput.value <= pickupInput.value) {
-                    returnInput.value = returnInput.min;
-                }
-            }
-            updateCalculation();
-        });
-
-        returnInput.addEventListener("change", updateCalculation);
-        extraCars.forEach(function (cb) {
-            cb.addEventListener("change", updateCalculation);
-        });
-        updateCalculation();
-    });
-</script>
-</th:block>
 </body>
 </html>
