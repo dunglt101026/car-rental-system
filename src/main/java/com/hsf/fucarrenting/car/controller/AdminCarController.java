@@ -4,7 +4,7 @@ import com.hsf.fucarrenting.car.dto.CarDeleteResult;
 import com.hsf.fucarrenting.car.dto.CarRequest;
 import com.hsf.fucarrenting.car.dto.CarResponse;
 import com.hsf.fucarrenting.car.entity.CarStatus;
-import com.hsf.fucarrenting.car.service.CarServiceImpl;
+import com.hsf.fucarrenting.car.service.CarService;
 import com.hsf.fucarrenting.common.exception.BusinessException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Slf4j
 public class AdminCarController {
 
-    private final CarServiceImpl carService;
+    private final CarService carService;
 
     @GetMapping
     public String listCars(

@@ -4,7 +4,7 @@ import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import com.hsf.fucarrenting.car.dto.CarDeleteResult;
 import com.hsf.fucarrenting.car.dto.CarRequest;
 import com.hsf.fucarrenting.car.dto.CarResponse;
-import com.hsf.fucarrenting.car.service.CarServiceImpl;
+import com.hsf.fucarrenting.car.service.CarService;
 import com.hsf.fucarrenting.common.config.AuthInterceptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +35,7 @@ class AdminCarControllerTest {
     private MockMvc mockMvc;
 
     @Mock
-    private CarServiceImpl carService;
+    private CarService carService;
 
     @InjectMocks
     private AdminCarController adminCarController;
