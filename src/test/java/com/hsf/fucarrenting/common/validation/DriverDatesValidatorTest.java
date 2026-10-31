@@ -101,4 +101,22 @@ class DriverDatesValidatorTest {
 
         assertThat(invalidFields(validator.validate(request))).containsExactly("returnDateAfterPickupDate");
     }
+
+    @Test
+    @DisplayName("Đặt xe: ngày nhận quá 90 ngày tới -> Lỗi pickupDateWithinBookingWindow")
+    void testRental_PickupTooFarAhead_ShouldReject() {
+        RentalCreateRequest request = new RentalCreateRequest(List.of(1),
+                LocalDate.now().plusDays(91), LocalDate.now().plusDays(93));
+
+        assertThat(invalidFields(validator.validate(request))).containsExactly("pickupDateWithinBookingWindow");
+    }
+
+    @Test
+    @DisplayName("Đặt xe: thuê quá 30 ngày -> Lỗi rentalWithinMaxDays")
+    void testRental_TooLong_ShouldReject() {
+        RentalCreateRequest request = new RentalCreateRequest(List.of(1),
+                LocalDate.now(), LocalDate.now().plusDays(31));
+
+        assertThat(invalidFields(validator.validate(request))).containsExactly("rentalWithinMaxDays");
+    }
 }

@@ -11,7 +11,7 @@
         <div class="col-lg-11">
             <div class="card card-modern p-4 mb-4 border-start border-primary border-4">
                 <h2 class="fw-bold text-dark mb-1">Đặt Thuê Xe</h2>
-                <p class="text-muted mb-0">Chọn thời gian thuê và một hoặc nhiều xe. Mỗi xe được lập thành một đơn thuê riêng.</p>
+                <p class="text-muted mb-0">Chọn thời gian thuê và một hoặc nhiều xe. Mỗi xe được lập thành một đơn thuê riêng. Đặt trước tối đa 90 ngày, mỗi đơn tối đa 30 ngày.</p>
             </div>
 
             <div class="row g-4">
@@ -56,9 +56,10 @@
                                         Ngày nhận xe <span class="text-danger">*</span>
                                     </label>
                                     <input type="date" class="form-control" id="pickupDate" th:field="*{pickupDate}"
-                                           th:attr="min=${today}"
-                                           th:classappend="${#fields.hasErrors('pickupDate')} ? 'is-invalid' : ''" required>
+                                           th:attr="min=${today},max=${today.plusDays(90)}"
+                                           th:classappend="${#fields.hasErrors('pickupDate') or #fields.hasErrors('pickupDateWithinBookingWindow')} ? 'is-invalid' : ''" required>
                                     <div class="invalid-feedback" th:if="${#fields.hasErrors('pickupDate')}" th:errors="*{pickupDate}"></div>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('pickupDateWithinBookingWindow')}" th:errors="*{pickupDateWithinBookingWindow}"></div>
                                 </div>
 
                                 <div class="col-md-6">
@@ -67,9 +68,10 @@
                                     </label>
                                     <input type="date" class="form-control" id="returnDate" th:field="*{returnDate}"
                                            th:attr="min=${today.plusDays(1)}"
-                                           th:classappend="${#fields.hasErrors('returnDate') or #fields.hasErrors('returnDateAfterPickupDate')} ? 'is-invalid' : ''" required>
+                                           th:classappend="${#fields.hasErrors('returnDate') or #fields.hasErrors('returnDateAfterPickupDate') or #fields.hasErrors('rentalWithinMaxDays')} ? 'is-invalid' : ''" required>
                                     <div class="invalid-feedback" th:if="${#fields.hasErrors('returnDate')}" th:errors="*{returnDate}"></div>
                                     <div class="invalid-feedback" th:if="${#fields.hasErrors('returnDateAfterPickupDate')}" th:errors="*{returnDateAfterPickupDate}"></div>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('rentalWithinMaxDays')}" th:errors="*{rentalWithinMaxDays}"></div>
                                 </div>
                             </div>
 
