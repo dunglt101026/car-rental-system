@@ -67,6 +67,8 @@ public class AuthController {
             return "redirect:/cars";
         } catch (BusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+            // Keep the typed username so only the password has to be re-entered
+            redirectAttributes.addFlashAttribute("username", username);
             return "redirect:/login";
         }
     }

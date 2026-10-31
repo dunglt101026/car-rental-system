@@ -19,14 +19,14 @@
                 <form th:action="@{/login}" method="post">
                     <div class="mb-3">
                         <label for="username" class="form-label small fw-semibold">Tên đăng nhập hoặc Email</label>
-                        <input type="text" class="form-control" id="username" name="username"
-                               placeholder="admin@carrent.com hoặc admin" required autofocus>
+                        <input type="text" class="form-control" id="username" name="username" th:value="${username}"
+                               placeholder="admin@carrent.com hoặc admin" required th:autofocus="${username == null}">
                     </div>
 
                     <div class="mb-3">
                         <label for="password" class="form-label small fw-semibold">Mật khẩu</label>
                         <input type="password" class="form-control" id="password" name="password"
-                               placeholder="Mật khẩu của bạn" required>
+                               placeholder="Mật khẩu của bạn" required th:autofocus="${username != null}">
                     </div>
 
                     <div class="d-grid mt-4">
