@@ -73,7 +73,7 @@
                         <th scope="col">CCCD / CMND</th>
                         <th scope="col">Ngày sinh</th>
                         <th scope="col">Giấy phép lái xe</th>
-                        <th scope="col" class="text-center" style="width: 150px;">Thao tác</th>
+                        <th scope="col" class="text-center text-nowrap" style="width: 1%;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -96,12 +96,12 @@
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-1">
                                 <a th:href="@{/admin/customers/edit/{id}(id=${c.customerId})}"
-                                   class="btn btn-sm btn-outline-primary" title="Xem chi tiết và chỉnh sửa hồ sơ">
+                                   class="btn btn-sm btn-outline-primary text-nowrap" title="Xem chi tiết và chỉnh sửa hồ sơ">
                                     Chi tiết
                                 </a>
                                 <form th:action="@{/admin/customers/delete/{id}(id=${c.customerId})}" method="post" class="d-inline"
                                       onsubmit="return confirm('Xóa khách hàng này cùng tài khoản đăng nhập? Khách hàng đã có đơn thuê sẽ không thể xóa.');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa khách hàng">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap" title="Xóa khách hàng">
                                         Xóa
                                     </button>
                                 </form>

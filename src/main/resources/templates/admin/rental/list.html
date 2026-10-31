@@ -83,7 +83,7 @@
                         <th scope="col" class="text-end">Tổng tiền</th>
                         <th scope="col" class="text-center">Trạng thái</th>
                         <th scope="col" class="text-center">Đánh giá</th>
-                        <th scope="col" class="text-center" style="width: 200px;">Thao tác</th>
+                        <th scope="col" class="text-center text-nowrap" style="width: 1%;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -99,11 +99,11 @@
                                   th:if="${r.carProducerName != null}"
                                   th:text="${r.carProducerName}">Toyota</span>
                         </td>
-                        <td class="small">
+                        <td class="small text-nowrap">
                             <div>Nhận: <strong th:text="${#temporals.format(r.pickupDate, 'dd/MM/yyyy')}">01/01/2026</strong></div>
                             <div>Trả: <strong th:text="${#temporals.format(r.returnDate, 'dd/MM/yyyy')}">05/01/2026</strong></div>
                         </td>
-                        <td class="text-end fw-semibold text-primary"
+                        <td class="text-end fw-semibold text-primary text-nowrap"
                             th:text="${#numbers.formatDecimal(r.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' $'">
                             1,500,000 $
                         </td>
@@ -123,7 +123,7 @@
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-1">
                                 <a th:href="@{/admin/rentals/{id}(id=${r.carRentId})}"
-                                   class="btn btn-sm btn-outline-primary" title="Xem chi tiết đơn thuê">
+                                   class="btn btn-sm btn-outline-primary text-nowrap" title="Xem chi tiết đơn thuê">
                                     Chi tiết
                                 </a>
 

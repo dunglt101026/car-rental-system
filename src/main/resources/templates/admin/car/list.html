@@ -103,7 +103,7 @@
                         <th scope="col" class="text-end">Giá thuê / ngày</th>
                         <th scope="col">Ngày nhập</th>
                         <th scope="col" class="text-center">Trạng thái</th>
-                        <th scope="col" class="text-center" style="width: 150px;">Thao tác</th>
+                        <th scope="col" class="text-center text-nowrap" style="width: 1%;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -134,12 +134,12 @@
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-1">
                                 <a th:href="@{/admin/cars/edit/{id}(id=${car.carId})}"
-                                   class="btn btn-sm btn-outline-primary" title="Chỉnh sửa thông tin xe">
+                                   class="btn btn-sm btn-outline-primary text-nowrap" title="Chỉnh sửa thông tin xe">
                                     Sửa
                                 </a>
                                 <form th:action="@{/admin/cars/delete/{id}(id=${car.carId})}" method="post" class="d-inline"
                                       onsubmit="return confirm('Bạn có chắc chắn muốn xóa xe này? Nếu xe đã từng phát sinh đơn thuê, hệ thống sẽ tự động chuyển trạng thái sang Inactive thay vì xóa vật lý theo đúng quy định.');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa xe khỏi hệ thống">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap" title="Xóa xe khỏi hệ thống">
                                         Xóa
                                     </button>
                                 </form>
