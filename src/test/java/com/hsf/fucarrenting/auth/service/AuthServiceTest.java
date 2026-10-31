@@ -22,7 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -115,8 +115,9 @@ class AuthServiceTest {
         Account account = Account.builder()
                 .accountId(1).accountName("newcustomer").role(Role.Customer)
                 .password(passwordEncoder.encode("secret123"))
+                .customer(Customer.builder().customerId(1).build())
                 .build();
-        when(accountRepository.findByAccountName("newcustomer")).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNameOrEmailOrderByAccountIdAsc("newcustomer", "newcustomer")).thenReturn(List.of(account));
 
         authService.login("newcustomer", "secret123");
 
@@ -130,7 +131,7 @@ class AuthServiceTest {
                 .accountId(2).accountName("customer1").role(Role.Customer)
                 .password("123456")
                 .build();
-        when(accountRepository.findByAccountName("customer1")).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNameOrEmailOrderByAccountIdAsc("customer1", "customer1")).thenReturn(List.of(account));
 
         assertThatThrownBy(() -> authService.login("customer1", "123456"))
                 .isInstanceOf(BusinessException.class);
@@ -143,9 +144,43 @@ class AuthServiceTest {
                 .accountId(1).accountName("newcustomer").role(Role.Customer)
                 .password(passwordEncoder.encode("secret123"))
                 .build();
-        when(accountRepository.findByAccountName("newcustomer")).thenReturn(Optional.of(account));
+        when(accountRepository.findByAccountNameOrEmailOrderByAccountIdAsc("newcustomer", "newcustomer")).thenReturn(List.of(account));
 
         assertThatThrownBy(() -> authService.login("newcustomer", "wrong"))
                 .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("login - Tài khoản Customer chưa có hồ sơ -> Từ chối đăng nhập")
+    void testLoginRejectsCustomerWithoutProfile() {
+        Account account = Account.builder()
+                .accountId(3).accountName("orphan_user").role(Role.Customer)
+                .password(passwordEncoder.encode("123456"))
+                .build();
+        when(accountRepository.findByAccountNameOrEmailOrderByAccountIdAsc("orphan_user", "orphan_user")).thenReturn(List.of(account));
+
+        assertThatThrownBy(() -> authService.login("orphan_user", "123456"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("chưa có hồ sơ khách hàng");
+    }
+
+    @Test
+    @DisplayName("login - DB có 2 tài khoản trùng tên -> Chọn tài khoản khớp mật khẩu, không lỗi 500")
+    void testLoginWithDuplicatedAccountName() {
+        Account first = Account.builder()
+                .accountId(4).accountName("dup").role(Role.Customer)
+                .password(passwordEncoder.encode("other999"))
+                .customer(Customer.builder().customerId(4).build())
+                .build();
+        Account second = Account.builder()
+                .accountId(5).accountName("dup").role(Role.Customer)
+                .password(passwordEncoder.encode("secret123"))
+                .customer(Customer.builder().customerId(5).build())
+                .build();
+        when(accountRepository.findByAccountNameOrEmailOrderByAccountIdAsc("dup", "dup")).thenReturn(List.of(first, second));
+
+        authService.login("dup", "secret123");
+
+        verify(accountMapper).toResponse(second);
     }
 }

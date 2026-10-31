@@ -3,6 +3,7 @@ package com.hsf.fucarrenting.auth.service;
 import com.hsf.fucarrenting.auth.dto.AccountResponse;
 import com.hsf.fucarrenting.auth.dto.RegisterRequest;
 import com.hsf.fucarrenting.auth.entity.Account;
+import com.hsf.fucarrenting.auth.entity.Role;
 import com.hsf.fucarrenting.auth.mapper.AccountMapper;
 import com.hsf.fucarrenting.auth.repository.AccountRepository;
 import com.hsf.fucarrenting.common.exception.BusinessException;
@@ -34,12 +35,16 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String trimmedId = identifier.trim();
-        Account account = accountRepository.findByAccountName(trimmedId)
-                .or(() -> accountRepository.findByEmail(trimmedId))
+        // Duplicated rows (data typed straight into the DB) must not crash login: take the one whose password matches
+        Account account = accountRepository.findByAccountNameOrEmailOrderByAccountIdAsc(trimmedId, trimmedId)
+                .stream()
+                .filter(candidate -> passwordEncoder.matches(password, candidate.getPassword()))
+                .findFirst()
                 .orElseThrow(() -> new BusinessException("Tên đăng nhập/email hoặc mật khẩu không chính xác."));
 
-        if (!passwordEncoder.matches(password, account.getPassword())) {
-            throw new BusinessException("Tên đăng nhập/email hoặc mật khẩu không chính xác.");
+        // A Customer account without a customer profile cannot use any customer page
+        if (account.getRole() == Role.Customer && account.getCustomer() == null) {
+            throw new BusinessException("Tài khoản chưa có hồ sơ khách hàng. Vui lòng liên hệ quản trị viên.");
         }
 
         return accountMapper.toResponse(account);
