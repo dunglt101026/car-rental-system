@@ -5,4 +5,4 @@ spring.datasource.password=your_password_here
 
 # Developer diagnostics
 spring.jpa.show-sql=true
-logging.level.com.hsf.asgm=DEBUG
+logging.level.com.hsf.fucarrenting=DEBUG

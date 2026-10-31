@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.hsf</groupId>
-    <artifactId>asgm</artifactId>
+    <artifactId>fu-car-renting-system</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>car-rental-system</name>
     <description>Car Rental System - Spring Boot Server-Side Thymeleaf</description>
