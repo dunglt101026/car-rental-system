@@ -67,3 +67,12 @@ footer {
     flex-shrink: 0;
 }
 
+
+/* Admin sidebar stays in view while the content scrolls */
+.admin-sidebar {
+    width: 260px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+}

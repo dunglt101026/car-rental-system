@@ -20,11 +20,6 @@
                     <strong class="text-dark" th:text="${#temporals.format(endDate, 'dd/MM/yyyy')}">31/01/2026</strong>.
                 </p>
             </div>
-            <div>
-                <span class="badge bg-primary px-3 py-2 fs-6">
-                    <span th:text="${report.totalRentals}">0</span> lượt thuê
-                </span>
-            </div>
         </div>
     </div>
 
@@ -34,33 +29,33 @@
         <form th:action="@{/admin/reports}" method="get" class="row g-3 align-items-end">
             <div class="col-md-3">
                 <label for="startDate" class="form-label small fw-semibold">Từ ngày nhận xe</label>
-                <input type="date" class="form-control form-control-sm" id="startDate" name="startDate"
+                <input type="date" class="form-control" id="startDate" name="startDate"
                        th:value="${startDate}" required>
             </div>
 
             <div class="col-md-3">
                 <label for="endDate" class="form-label small fw-semibold">Đến ngày nhận xe</label>
-                <input type="date" class="form-control form-control-sm" id="endDate" name="endDate"
+                <input type="date" class="form-control" id="endDate" name="endDate"
                        th:value="${endDate}" required>
             </div>
 
-            <div class="col-md-3">
-                <label for="sortBy" class="form-label small fw-semibold">Thứ tự sắp xếp dữ liệu</label>
-                <select class="form-select form-select-sm" id="sortBy" name="sortBy">
+            <div class="col-md">
+                <label for="sortBy" class="form-label small fw-semibold">Sắp xếp giảm dần theo</label>
+                <select class="form-select" id="sortBy" name="sortBy">
                     <option value="date" th:selected="${sortBy == 'date'}">
-                        Ngày nhận xe mới nhất (Giảm dần - DESC)
+                        Ngày nhận xe (mới nhất trước)
                     </option>
                     <option value="revenue" th:selected="${sortBy == 'revenue'}">
-                        Doanh thu đơn cao nhất (Giảm dần - DESC)
+                        Doanh thu đơn (cao nhất trước)
                     </option>
                 </select>
             </div>
 
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">
+            <div class="col-md-auto d-flex gap-2">
+                <button type="submit" class="btn btn-primary fw-semibold text-nowrap px-4">
                     Xem báo cáo
                 </button>
-                <a th:href="@{/admin/reports}" class="btn btn-outline-secondary btn-sm px-3" title="Đặt lại 30 ngày gần nhất">
+                <a th:href="@{/admin/reports}" class="btn btn-outline-secondary text-nowrap" title="Đặt lại 30 ngày gần nhất">
                     Đặt lại
                 </a>
             </div>

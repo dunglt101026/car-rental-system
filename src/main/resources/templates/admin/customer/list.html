@@ -15,9 +15,8 @@
                 <h2 class="fw-bold text-dark mb-1">Quản Lý Danh Sách Khách Hàng</h2>
                 <p class="text-muted mb-0">Theo dõi thông tin chi tiết người dùng, tài khoản hệ thống và hồ sơ giấy tờ.</p>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-primary px-3 py-2 fs-6" th:text="${totalElements} + ' khách hàng'">0 khách hàng</span>
-                <a th:href="@{/admin/customers/new}" class="btn btn-primary fw-semibold">Thêm khách hàng</a>
+            <div>
+                <a th:href="@{/admin/customers/new}" class="btn btn-primary px-4 fw-semibold">Thêm khách hàng</a>
             </div>
         </div>
     </div>
@@ -26,17 +25,17 @@
     <div class="card card-modern p-4 mb-4">
         <h5 class="fw-bold mb-3 text-secondary">Tìm kiếm khách hàng</h5>
         <form th:action="@{/admin/customers}" method="get" class="row g-3 align-items-end">
-            <div class="col-md-9">
+            <div class="col-md">
                 <label for="keyword" class="form-label small fw-semibold">Từ khóa tra cứu</label>
-                <input type="text" class="form-control form-control-sm" id="keyword" name="keyword"
+                <input type="text" class="form-control" id="keyword" name="keyword"
                        th:value="${keyword}" placeholder="Tìm theo họ tên, số điện thoại, CCCD/CMND, tên tài khoản hoặc email...">
             </div>
 
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">
+            <div class="col-md-auto d-flex gap-2">
+                <button type="submit" class="btn btn-primary fw-semibold text-nowrap px-4">
                     Tìm kiếm
                 </button>
-                <a th:href="@{/admin/customers}" class="btn btn-outline-secondary btn-sm px-3" title="Đặt lại bộ lọc">
+                <a th:href="@{/admin/customers}" class="btn btn-outline-secondary text-nowrap" title="Đặt lại bộ lọc">
                     Đặt lại
                 </a>
             </div>

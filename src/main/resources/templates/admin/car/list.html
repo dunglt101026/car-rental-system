@@ -27,15 +27,15 @@
     <div class="card card-modern p-4 mb-4">
         <h5 class="fw-bold mb-3 text-secondary">Bộ lọc tìm kiếm</h5>
         <form th:action="@{/admin/cars}" method="get" class="row g-3 align-items-end">
-            <div class="col-md-4">
+            <div class="col-md">
                 <label for="keyword" class="form-label small fw-semibold">Từ khóa tìm kiếm</label>
-                <input type="text" class="form-control form-control-sm" id="keyword" name="keyword"
+                <input type="text" class="form-control" id="keyword" name="keyword"
                        th:value="${keyword}" placeholder="Nhập tên xe hoặc mô tả...">
             </div>
 
             <div class="col-md-3">
                 <label for="producerId" class="form-label small fw-semibold">Hãng sản xuất</label>
-                <select class="form-select form-select-sm" id="producerId" name="producerId">
+                <select class="form-select" id="producerId" name="producerId">
                     <option value="">-- Tất cả các hãng --</option>
                     <option th:each="p : ${producers}"
                             th:value="${p.producerId}"
@@ -48,7 +48,7 @@
 
             <div class="col-md-3">
                 <label for="status" class="form-label small fw-semibold">Trạng thái xe</label>
-                <select class="form-select form-select-sm" id="status" name="status">
+                <select class="form-select" id="status" name="status">
                     <option value="">-- Tất cả trạng thái --</option>
                     <option th:each="st : ${statuses}"
                             th:value="${st.name()}"
@@ -59,11 +59,11 @@
                 </select>
             </div>
 
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">
+            <div class="col-md-auto d-flex gap-2">
+                <button type="submit" class="btn btn-primary fw-semibold text-nowrap px-4">
                     Lọc dữ liệu
                 </button>
-                <a th:href="@{/admin/cars}" class="btn btn-outline-secondary btn-sm px-3" title="Xóa bộ lọc">
+                <a th:href="@{/admin/cars}" class="btn btn-outline-secondary text-nowrap" title="Xóa bộ lọc">
                     Đặt lại
                 </a>
             </div>
