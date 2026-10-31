@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/public-layout}">
+<head>
+    <title>Đánh giá chuyến xe</title>
+</head>
+<body>
+<div layout:fragment="content" class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="card card-modern p-4 mb-4 border-start border-primary border-4">
+                <h2 class="fw-bold text-dark mb-1">Đánh Giá Chuyến Xe</h2>
+                <p class="text-muted mb-0">Chia sẻ trải nghiệm của bạn sau khi hoàn thành chuyến thuê xe.</p>
+            </div>
+
+            <!-- Rental Summary -->
+            <div class="card card-modern p-4 mb-4 border">
+                <h6 class="fw-bold text-secondary mb-3">Thông Tin Đơn Thuê</h6>
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Mã đơn:</span>
+                        <span class="fw-semibold">#<span th:text="${rental.carRentId}">3</span></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Xe:</span>
+                        <span class="fw-semibold" th:text="${rental.carName + ' (' + rental.carProducerName + ')'}">Mitsubishi Xpander (Mitsubishi)</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Thời gian thuê:</span>
+                        <span class="fw-semibold"
+                              th:text="${#temporals.format(rental.pickupDate, 'dd/MM/yyyy') + ' - ' + #temporals.format(rental.returnDate, 'dd/MM/yyyy')}">
+                            11/10/2026 - 14/10/2026
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Tổng chi phí:</span>
+                        <span class="fw-bold text-primary" th:text="${'$' + #numbers.formatDecimal(rental.rentPrice, 1, 2)}">$165.00</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Review Form -->
+            <div class="card card-modern p-4 border">
+                <form th:action="@{/customer/reviews}" th:object="${reviewRequest}" method="post">
+                    <input type="hidden" th:field="*{carRentId}" />
+
+                    <div class="mb-3">
+                        <label for="reviewStar" class="form-label small fw-semibold">Xếp hạng mức độ hài lòng <span class="text-danger">*</span></label>
+                        <select class="form-select" id="reviewStar" th:field="*{reviewStar}"
+                                th:classappend="${#fields.hasErrors('reviewStar')} ? 'is-invalid' : ''" required>
+                            <option value="5">5 sao - Xuất sắc / Rất hài lòng</option>
+                            <option value="4">4 sao - Tốt / Hài lòng</option>
+                            <option value="3">3 sao - Bình thường</option>
+                            <option value="2">2 sao - Chưa hài lòng</option>
+                            <option value="1">1 sao - Kém</option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('reviewStar')}" th:errors="*{reviewStar}"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="comment" class="form-label small fw-semibold">Nhận xét chi tiết <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="comment" th:field="*{comment}" rows="4" maxlength="500"
+                                  th:classappend="${#fields.hasErrors('comment')} ? 'is-invalid' : ''"
+                                  placeholder="Chia sẻ trải nghiệm của bạn về tình trạng xe, độ sạch sẽ, vận hành..." required></textarea>
+                        <div class="form-text small text-muted">Tối đa 500 ký tự.</div>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a th:href="@{/customer/rentals}" class="btn btn-outline-secondary">Quay lại</a>
+                        <button type="submit" class="btn btn-primary px-4">Gửi đánh giá</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

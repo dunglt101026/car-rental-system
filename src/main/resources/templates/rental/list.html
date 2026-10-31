@@ -93,18 +93,22 @@
                                 </div>
                             </div>
 
-                            <!-- Not Reviewed & Completed -> Button to Open Review Modal -->
+                            <!-- Not Reviewed & Completed -> Link to Review Page -->
                             <div th:if="${r.reviewStar == null and r.status == 'Completed'}">
-                                <button type="button" class="btn btn-outline-warning btn-sm text-dark fw-semibold btn-review"
-                                        data-bs-toggle="modal" data-bs-target="#reviewModal"
-                                        th:attr="data-rental-id=${r.carRentId}, data-car-name=${r.carName}">
+                                <a th:href="@{/customer/reviews/new(carRentId=${r.carRentId})}"
+                                   class="btn btn-outline-warning btn-sm text-dark fw-semibold">
                                     Viết đánh giá
-                                </button>
+                                </a>
                             </div>
 
-                            <!-- Not Completed & No Review -->
-                            <div th:if="${r.reviewStar == null and r.status != 'Completed'}">
+                            <!-- Active -> Waiting for the trip to finish -->
+                            <div th:if="${r.status == 'Active'}">
                                 <span class="text-muted small"><em>Chờ hoàn thành chuyến</em></span>
+                            </div>
+
+                            <!-- Cancelled -> Nothing to review -->
+                            <div th:if="${r.reviewStar == null and r.status == 'Cancelled'}">
+                                <span class="text-muted small"><em>Đơn đã hủy, không thể đánh giá</em></span>
                             </div>
                         </td>
                     </tr>
@@ -112,68 +116,6 @@
             </table>
         </div>
     </div>
-
-    <!-- Modal Đánh Giá Xe -->
-    <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form th:action="@{/customer/reviews}" method="post">
-                    <div class="modal-header bg-light">
-                        <h5 class="modal-title fw-bold" id="reviewModalLabel">Đánh Giá Chuyến Xe</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <input type="hidden" id="modalRentalId" name="carRentId" value="" />
-
-                        <div class="mb-3">
-                            <label class="form-label small text-muted">Dòng xe đánh giá:</label>
-                            <div class="fw-bold fs-6 text-primary" id="modalCarName">Toyota Camry</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="reviewStar" class="form-label small fw-semibold">Xếp hạng mức độ hài lòng <span class="text-danger">*</span></label>
-                            <select class="form-select" id="reviewStar" name="reviewStar" required>
-                                <option value="5" selected>5 sao - Xuất sắc / Rất hài lòng</option>
-                                <option value="4">4 sao - Tốt / Hài lòng</option>
-                                <option value="3">3 sao - Bình thường</option>
-                                <option value="2">2 sao - Chưa hài lòng</option>
-                                <option value="1">1 sao - Kém</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="comment" class="form-label small fw-semibold">Nhận xét chi tiết <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="comment" name="comment" rows="4"
-                                      placeholder="Chia sẻ trải nghiệm của bạn về tình trạng xe, độ sạch sẽ, vận hành..." required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary px-4">Gửi đánh giá</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 </div>
-
-<th:block layout:fragment="scripts">
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const reviewButtons = document.querySelectorAll(".btn-review");
-        const modalRentalId = document.getElementById("modalRentalId");
-        const modalCarName = document.getElementById("modalCarName");
-
-        reviewButtons.forEach(btn => {
-            btn.addEventListener("click", function () {
-                const rentalId = this.getAttribute("data-rental-id");
-                const carName = this.getAttribute("data-car-name");
-                modalRentalId.value = rentalId;
-                modalCarName.textContent = carName + " (Đơn thuê #" + rentalId + ")";
-            });
-        });
-    });
-</script>
-</th:block>
 </body>
 </html>
